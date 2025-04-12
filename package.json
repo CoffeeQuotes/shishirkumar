@@ -11,6 +11,7 @@
   },
   "scripts": {
     "generate": "prisma generate",
+    "deploy": "prisma migrate deploy",
     "dev": "next dev",
     "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
