@@ -1,8 +1,9 @@
 // app/api/quizzes/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-import { writeFile, readFile, mkdir } from 'fs/promises'; // Use async file system methods
+import { PrismaClient } from '@prisma/client';
+
+// Initialize Prisma client
+const prisma = new PrismaClient();
 
 // Define the quiz types (consider moving to a shared types file later)
 type Question = {
@@ -10,6 +11,7 @@ type Question = {
   text: string;
   options: string[];
   correctAnswer: string;
+  quizId?: string; // Added for database relations
 };
 
 type Quiz = {
@@ -19,67 +21,79 @@ type Quiz = {
   questions: Question[];
 };
 
-// Path to the JSON file - ensure it's correct relative to project root
-// Using 'data' directory is a good practice
-const dataDirectory = path.join(process.cwd(), 'data');
-const dataFilePath = path.join(dataDirectory, 'quizzes.json');
-
-// Ensure the data directory exists (async version)
-const ensureDirectoryExists = async () => {
+// Helper to get quizzes from the database
+const getQuizzesFromDB = async (): Promise<Quiz[]> => {
   try {
-    await mkdir(dataDirectory, { recursive: true });
-  } catch (error: any) {
-    // Ignore error if directory already exists
-    if (error.code !== 'EEXIST') {
-      console.error("Failed to create data directory:", error);
-      throw new Error("Could not ensure data directory exists."); // Re-throw for server error
-    }
-  }
-};
-
-// Helper to read quizzes from the file (async)
-const readQuizzesFromFile = async (): Promise<Quiz[]> => {
-  try {
-    await ensureDirectoryExists(); // Make sure directory is there before reading
-    // Check if file exists first to avoid error on first run
-    if (!fs.existsSync(dataFilePath)) {
-        return []; // Return empty array if file doesn't exist
-    }
-    const jsonData = await readFile(dataFilePath, 'utf-8');
-    // Handle empty file case
-    if (!jsonData.trim()) {
-        return [];
-    }
-    const quizzes = JSON.parse(jsonData);
-    // Basic validation if it's an array
-    return Array.isArray(quizzes) ? quizzes : [];
-  } catch (error: any) {
-    // Specifically handle file not found during read attempt (though check above should prevent)
-    if (error.code === 'ENOENT') {
-      return []; // File doesn't exist, return empty array
-    }
-    // Handle JSON parsing errors
-    if (error instanceof SyntaxError) {
-        console.error("Error parsing quizzes.json:", error);
-        // Decide how to handle: return empty array or throw error?
-        // Returning empty might be safer, but masks data corruption. Throwing is clearer.
-        throw new Error("Failed to parse quiz data file. File might be corrupted.");
-    }
-    console.error("Failed to read quizzes file:", error);
-    // Re-throw other unexpected errors to be caught by the handler
-    throw new Error("Could not read quiz data.");
-  }
-};
-
-// Helper to write quizzes to the file (async)
-const writeQuizzesToFile = async (quizzes: Quiz[]): Promise<void> => {
-  try {
-    await ensureDirectoryExists();
-    const jsonData = JSON.stringify(quizzes, null, 2); // Pretty print JSON
-    await writeFile(dataFilePath, jsonData, 'utf-8');
+    // Get all quizzes with their questions
+    const quizzes = await prisma.quiz.findMany({
+      include: {
+        questions: true,
+      },
+    });
+    
+    // Transform the data to match the expected format
+    return quizzes.map(quiz => ({
+      id: quiz.id,
+      title: quiz.title,
+      category: quiz.category,
+      questions: quiz.questions.map(question => ({
+        id: question.id,
+        text: question.text,
+        options: question.options as string[], // Options stored as a JSON array in DB
+        correctAnswer: question.correctAnswer,
+      })),
+    }));
   } catch (error) {
-    console.error("Failed to write quizzes file:", error);
-    throw new Error("Could not save quiz data."); // Propagate error
+    console.error("Failed to read quizzes from database:", error);
+    throw new Error("Could not retrieve quiz data from database.");
+  }
+};
+
+// Helper to add a new quiz to the database
+const addQuizToDB = async (quiz: Quiz): Promise<Quiz> => {
+  try {
+    // Create the quiz and its questions in a transaction
+    const result = await prisma.$transaction(async (tx) => {
+      // Create the quiz
+      const createdQuiz = await tx.quiz.create({
+        data: {
+          id: quiz.id,
+          title: quiz.title,
+          category: quiz.category,
+          // Create the questions related to this quiz
+          questions: {
+            create: quiz.questions.map(question => ({
+              id: question.id,
+              text: question.text,
+              options: question.options, // This will be stored as a JSON array
+              correctAnswer: question.correctAnswer,
+            })),
+          },
+        },
+        // Include questions in the return value
+        include: {
+          questions: true,
+        },
+      });
+
+      // Transform the response to match the expected Quiz type
+      return {
+        id: createdQuiz.id,
+        title: createdQuiz.title,
+        category: createdQuiz.category,
+        questions: createdQuiz.questions.map(question => ({
+          id: question.id,
+          text: question.text,
+          options: question.options as string[],
+          correctAnswer: question.correctAnswer,
+        })),
+      };
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Failed to add quiz to database:", error);
+    throw new Error("Could not save quiz data to database.");
   }
 };
 
@@ -88,7 +102,7 @@ const writeQuizzesToFile = async (quizzes: Quiz[]): Promise<void> => {
 // GET: Retrieve all quizzes
 export async function GET() {
   try {
-    const quizzes = await readQuizzesFromFile();
+    const quizzes = await getQuizzesFromDB();
     return NextResponse.json(quizzes);
   } catch (error: any) {
     // Use the error message generated by the helper functions
@@ -121,10 +135,7 @@ export async function POST(request: NextRequest) {
     }
     // Add more validation for question structure if necessary
 
-    // 3. Read existing quizzes
-    const quizzes = await readQuizzesFromFile(); // Handles reading errors
-
-    // 4. Prepare the final quiz object
+    // 3. Prepare the final quiz object
     const finalQuiz: Quiz = {
       // Generate a simple unique ID (consider UUID for production)
       id: Date.now().toString(36) + Math.random().toString(36).substring(2, 9),
@@ -139,17 +150,14 @@ export async function POST(request: NextRequest) {
       })),
     };
 
-    // 5. Add the new quiz
-    quizzes.push(finalQuiz);
+    // 4. Add the new quiz to the database
+    const createdQuiz = await addQuizToDB(finalQuiz);
 
-    // 6. Write updated data back to file
-    await writeQuizzesToFile(quizzes); // Handles writing errors
-
-    // 7. Return the newly created quiz with 201 status
-    return NextResponse.json(finalQuiz, { status: 201 });
+    // 5. Return the newly created quiz with 201 status
+    return NextResponse.json(createdQuiz, { status: 201 });
 
   } catch (error: any) {
-     // Catch errors from read/write helpers or unexpected issues
+     // Catch errors from database operations or unexpected issues
     console.error("[API POST Error]", error);
     return NextResponse.json({ error: error.message || 'Failed to create quiz' }, { status: 500 });
   }
