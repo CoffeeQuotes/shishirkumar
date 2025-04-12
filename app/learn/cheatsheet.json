@@ -1,0 +1,640 @@
+[
+  {
+    "id": "laravel",
+    "title": "Laravel",
+    "intro": "Laravel ek PHP framework hai jo MVC architecture follow karta hai. Ye developer ke liye bahut saare features provide karta hai jisse development fast aur easy ho jata hai.",
+    "colorClasses": {
+      "triggerActive": "data-[state=active]:bg-blue-100 data-[state=active]:text-blue-900 dark:data-[state=active]:bg-blue-900 dark:data-[state=active]:text-blue-100",
+      "introBg": "bg-blue-50 dark:bg-blue-950",
+      "introBorder": "border-blue-200 dark:border-blue-800",
+      "introText": "text-blue-600 dark:text-blue-400",
+      "noteText": "text-blue-600 dark:text-blue-400"
+    },
+    "sections": [
+      {
+        "id": "laravel-installation",
+        "title": "Laravel Installation & Setup",
+        "items": [
+          {
+            "concept": "Installation",
+            "description": "Laravel ko Composer ke through install kiya jata hai",
+            "note": "Composer ek dependency manager hai PHP ke liye jisse aap Laravel ko install kar sakte hain",
+            "code": "composer create-project laravel/laravel example-app",
+            "copyId": "laravel-install"
+          },
+          {
+            "concept": "Server Start",
+            "description": "Development server ko start karne ka command",
+            "note": "Apne local machine par Laravel app ko run karne ke liye ye command use hota hai",
+            "code": "php artisan serve",
+            "copyId": "laravel-serve"
+          },
+          {
+            "concept": "Artisan CLI",
+            "description": "Command-line interface for Laravel",
+            "note": "Laravel ke saath aane wala command line tool hai jo developers ko different tasks automate karne mein help karta hai",
+            "code": "php artisan list\nphp artisan make:controller UserController",
+            "copyId": "laravel-artisan"
+          }
+        ]
+      },
+      {
+        "id": "laravel-routing",
+        "title": "Laravel Routing",
+        "items": [
+          {
+            "concept": "Basic Routes",
+            "description": "Routes define in routes/web.php",
+            "note": "Routes define karte hain ki konsa URL kis controller/function ko call karega",
+            "code": "Route::get('/welcome', function () {\n  return view('welcome');\n});",
+            "copyId": "laravel-route-basic"
+          },
+          {
+            "concept": "Route Parameters",
+            "description": "Dynamic values in route URLs",
+            "note": "URL mein variables pass karne ke liye use hota hai",
+            "code": "Route::get('/user/{id}', function ($id) {\n  return 'User '.$id;\n});",
+            "copyId": "laravel-route-param"
+          },
+          {
+            "concept": "Named Routes",
+            "description": "Give a name to routes for easy reference",
+            "note": "Routes ko name dena taaki aap unhe easily reference kar sakein",
+            "code": "Route::get('/profile', function () {\n  // code\n})->name('profile');\n\n// Generating URLs\n$url = route('profile');",
+            "copyId": "laravel-named-route"
+          },
+          {
+            "concept": "Route Groups",
+            "description": "Group routes with shared attributes",
+            "note": "Common prefix, middleware, ya controller ke saath multiple routes ko group karna",
+            "code": "Route::middleware(['auth'])->group(function () {\n  Route::get('/dashboard', function () {\n    // code\n  });\n  Route::get('/profile', function () {\n    // code\n  });\n});",
+            "copyId": "laravel-route-group"
+          }
+        ]
+      },
+      {
+        "id": "laravel-mvc",
+        "title": "Laravel MVC",
+        "items": [
+          {
+            "concept": "Controllers",
+            "description": "Handle HTTP requests",
+            "note": "User request ko handle karte hain aur Model se data lekar View ko bhejte hain",
+            "code": "php artisan make:controller UserController\n\nclass UserController extends Controller\n{\n  public function show($id)\n  {\n    $user = User::find($id);\n    return view('user.profile', ['user' => $user]);\n  }\n}",
+            "copyId": "laravel-controller"
+          },
+          {
+            "concept": "Models",
+            "description": "Represent database tables",
+            "note": "Database tables ko represent karte hain aur unke saath interact karne ke liye methods provide karte hain",
+            "code": "php artisan make:model User\n\nclass User extends Model\n{\n  protected $fillable = ['name', 'email'];\n}",
+            "copyId": "laravel-model"
+          },
+          {
+            "concept": "Views",
+            "description": "Display data to users (UI)",
+            "note": "User interface ko represent karte hain, HTML code ko Blade template engine ke saath mix karke",
+            "code": "// resources/views/welcome.blade.php\n<html>\n  <body>\n    Hello, {{ $name }}\n  </body>\n</html>",
+            "copyId": "laravel-view"
+          }
+        ]
+      },
+      {
+        "id": "laravel-migrations",
+        "title": "Laravel Migrations & Database",
+        "items": [
+          {
+            "concept": "Migrations",
+            "description": "Database version control system",
+            "note": "Database schema ko manage karne ke liye, jisse team members ek hi structure follow kar sake",
+            "code": "php artisan make:migration create_users_table\n\n// In migration file\npublic function up()\n{\n  Schema::create('users', function (Blueprint $table) {\n    $table->id();\n    $table->string('name');\n    $table->string('email')->unique();\n    $table->timestamps();\n  });\n}",
+            "copyId": "laravel-migration"
+          },
+          {
+            "concept": "Seeders",
+            "description": "Populate database with test data",
+            "note": "Database ko sample data se fill karne ke liye use hota hai, testing ke liye useful",
+            "code": "php artisan make:seeder UserSeeder\n\n// In seeder file\npublic function run()\n{\n  DB::table('users')->insert([\n    'name' => 'Test User',\n    'email' => 'test@example.com',\n  ]);\n}",
+            "copyId": "laravel-seeder"
+          },
+          {
+            "concept": "Eloquent ORM",
+            "description": "Object-Relational Mapping for database",
+            "note": "Database tables ko objects ki tarah use karne ka system, SQL queries likhne ki zarurat nahi padti",
+            "code": "// Create\n$user = new User;\n$user->name = 'John';\n$user->save();\n\n// Read\n$users = User::all();\n$user = User::find(1);\n\n// Update\n$user = User::find(1);\n$user->email = 'new@email.com';\n$user->save();\n\n// Delete\n$user = User::find(1);\n$user->delete();",
+            "copyId": "laravel-eloquent"
+          }
+        ]
+      },
+      {
+        "id": "laravel-blade",
+        "title": "Laravel Blade Templates",
+        "items": [
+          {
+            "concept": "Echo Data",
+            "description": "Display variable content",
+            "note": "Variables ko display karne ke liye use hota hai",
+            "code": "{{ $variable }}\n{!! $rawHtml !!}",
+            "copyId": "laravel-blade-echo"
+          },
+          {
+            "concept": "Control Structures",
+            "description": "Conditional and loop structures",
+            "note": "Conditions aur loops ko template mein use karne ke liye",
+            "code": "@if($user->isAdmin)\n  <p>Admin user</p>\n@else\n  <p>Regular user</p>\n@endif\n\n@foreach($users as $user)\n  <p>{{ $user->name }}</p>\n@endforeach",
+            "copyId": "laravel-blade-control"
+          },
+          {
+            "concept": "Layout & Section",
+            "description": "Template inheritance",
+            "note": "Template ko reuse karne ke liye, common layout define karke multiple pages mein use kar sakte hain",
+            "code": "<!-- layouts/app.blade.php -->\n<html>\n  <head>\n    <title>@yield('title')</title>\n  </head>\n  <body>\n    @yield('content')\n  </body>\n</html>\n\n<!-- page.blade.php -->\n@extends('layouts.app')\n\n@section('title', 'Page Title')\n\n@section('content')\n  <p>Content here</p>\n@endsection",
+            "copyId": "laravel-blade-layout"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "php",
+    "title": "PHP",
+    "intro": "PHP ek server-side scripting language hai jo website ko dynamic banane ke liye use hoti hai. Iska full form \"PHP: Hypertext Preprocessor\" hai.",
+    "colorClasses": {
+      "triggerActive": "data-[state=active]:bg-green-100 data-[state=active]:text-green-900 dark:data-[state=active]:bg-green-900 dark:data-[state=active]:text-green-100",
+      "introBg": "bg-green-50 dark:bg-green-950",
+      "introBorder": "border-green-200 dark:border-green-800",
+      "introText": "text-green-600 dark:text-green-400",
+      "noteText": "text-green-600 dark:text-green-400"
+    },
+    "sections": [
+      {
+        "id": "php-basics",
+        "title": "PHP Basics",
+        "items": [
+          {
+            "concept": "Syntax",
+            "description": "Basic PHP syntax",
+            "note": "PHP code PHP tags ke beech mein likha jata hai",
+            "code": "<?php\n  echo \"Hello World!\";\n?>",
+            "copyId": "php-syntax"
+          },
+          {
+            "concept": "Variables",
+            "description": "Storing values",
+            "note": "Variables mein data store kiya jata hai, PHP mein $ sign se start hote hain",
+            "code": "$name = \"John\";\n$age = 25;\n$is_active = true;\necho \"Name: \" . $name;",
+            "copyId": "php-variables"
+          },
+          {
+            "concept": "Data Types",
+            "description": "Different types of data",
+            "note": "PHP mein alag alag type ke data store kiye ja sakte hain",
+            "code": "$string = \"Text\";\n$integer = 42;\n$float = 3.14;\n$boolean = true;\n$array = [\"one\", \"two\"];\n$null = null;\n$object = new stdClass();",
+            "copyId": "php-data-types"
+          },
+          {
+            "concept": "Operators",
+            "description": "Perform operations on variables",
+            "note": "Variables par operations perform karne ke liye operators use hote hain",
+            "code": "// Arithmetic\n$sum = $a + $b;\n$diff = $a - $b;\n\n// Comparison\n$isEqual = ($a == $b);\n$isIdentical = ($a === $b);\n\n// Logical\n$result = ($a && $b);\n$result = ($a || $b);",
+            "copyId": "php-operators"
+          }
+        ]
+      },
+      {
+        "id": "php-control-structures",
+        "title": "PHP Control Structures",
+        "items": [
+          {
+            "concept": "Conditionals",
+            "description": "Make decisions in code",
+            "note": "Conditions ke basis par code execute karne ke liye use hota hai",
+            "code": "if ($age > 18) {\n  echo \"You are adult\";\n} elseif ($age > 12) {\n  echo \"You are a teenager\";\n} else {\n  echo \"You are a child\";\n}\n\n// Ternary operator\n$result = ($age > 18) ? \"Adult\" : \"Not adult\";",
+            "copyId": "php-conditionals"
+          },
+          {
+            "concept": "Loops",
+            "description": "Repeat code execution",
+            "note": "Code ko baar baar execute karne ke liye loops ka use kiya jata hai",
+            "code": "// For loop\nfor ($i = 0; $i < 5; $i++) {\n  echo $i;\n}\n\n// While loop\n$i = 0;\nwhile ($i < 5) {\n  echo $i;\n  $i++;\n}\n\n// Foreach (for arrays)\nforeach ($array as $value) {\n  echo $value;\n}",
+            "copyId": "php-loops"
+          },
+          {
+            "concept": "Switch",
+            "description": "Alternative to multiple if statements",
+            "note": "Multiple if-else statements ko replace karne ke liye switch ka use kiya jata hai",
+            "code": "switch ($day) {\n  case \"Monday\":\n    echo \"Start of work week\";\n    break;\n  case \"Friday\":\n    echo \"End of work week\";\n    break;\n  default:\n    echo \"Regular day\";\n}",
+            "copyId": "php-switch"
+          }
+        ]
+      },
+      {
+        "id": "php-functions-arrays",
+        "title": "PHP Functions & Arrays",
+        "items": [
+          {
+            "concept": "Functions",
+            "description": "Reusable code blocks",
+            "note": "Functions code ke blocks hote hain jinhe baar baar use kiya ja sakta hai",
+            "code": "// Function definition\nfunction greet($name) {\n  return \"Hello, \" . $name;\n}\n\n// Function call\necho greet(\"John\");\n\n// Default parameters\nfunction setHeight($height = 50) {\n  echo \"Height is: \" . $height;\n}",
+            "copyId": "php-functions"
+          },
+          {
+            "concept": "Arrays",
+            "description": "Store multiple values",
+            "note": "Multiple values ko ek variable mein store karne ke liye arrays use hote hain",
+            "code": "// Indexed array\n$fruits = [\"Apple\", \"Banana\", \"Cherry\"];\necho $fruits[0]; // Apple\n\n// Associative array\n$person = [\n  \"name\" => \"John\",\n  \"age\" => 25,\n  \"city\" => \"New York\"\n];\necho $person[\"name\"];\n\n// Multidimensional array\n$employees = [\n  [\"John\", 25, \"Developer\"],\n  [\"Jane\", 30, \"Designer\"]\n];",
+            "copyId": "php-arrays"
+          },
+          {
+            "concept": "Array Functions",
+            "description": "Manipulate arrays",
+            "note": "Arrays ko manipulate karne ke liye PHP mein built-in functions hote hain",
+            "code": "$numbers = [3, 1, 4, 1, 5];\n\n// Sorting\nsort($numbers);\n\n// Count\n$count = count($numbers);\n\n// Add/Remove\narray_push($numbers, 9); // Add to end\narray_pop($numbers); // Remove from end\narray_unshift($numbers, 0); // Add to beginning\narray_shift($numbers); // Remove from beginning\n\n// Search\n$position = array_search(4, $numbers);",
+            "copyId": "php-array-functions"
+          }
+        ]
+      },
+      {
+        "id": "php-oop",
+        "title": "PHP OOP (Object-Oriented Programming)",
+        "items": [
+          {
+            "concept": "Classes & Objects",
+            "description": "Blueprint for objects",
+            "note": "Class ek blueprint hoti hai aur object uska instance hota hai",
+            "code": "// Class definition\nclass Car {\n  // Properties\n  public $color;\n  public $model;\n\n  // Constructor\n  public function __construct($color, $model) {\n    $this->color = $color;\n    $this->model = $model;\n  }\n\n  // Method\n  public function getInfo() {\n    return \"A \" . $this->color . \" \" . $this->model;\n  }\n}\n\n// Object creation\n$myCar = new Car(\"red\", \"Toyota\");\necho $myCar->getInfo();",
+            "copyId": "php-oop-class"
+          },
+          {
+            "concept": "Inheritance",
+            "description": "Extend class functionality",
+            "note": "Ek class dusri class ki properties aur methods ko inherit kar sakti hai",
+            "code": "class Vehicle {\n  public $brand;\n  public function honk() {\n    return \"Beep!\";\n  }\n}\n\nclass Car extends Vehicle {\n  public function honk() {\n    return \"Car says: \" . parent::honk();\n  }\n}",
+            "copyId": "php-oop-inheritance"
+          },
+          {
+            "concept": "Access Modifiers",
+            "description": "Control access to properties and methods",
+            "note": "Properties aur methods tak kaise access kiya ja sakta hai ye control karta hai",
+            "code": "class Person {\n  public $name; // Accessible anywhere\n  protected $age; // Accessible in this and child classes\n  private $salary; // Only accessible in this class\n\n  public function __construct($n, $a, $s) {\n    $this->name = $n;\n    $this->age = $a;\n    $this->salary = $s;\n  }\n}",
+            "copyId": "php-oop-access"
+          }
+        ]
+      },
+      {
+        "id": "php-forms-sessions",
+        "title": "PHP Forms & Sessions",
+        "items": [
+          {
+            "concept": "Forms",
+            "description": "Process form data",
+            "note": "HTML forms se data ko process karne ke liye PHP ka use kiya jata hai",
+            "code": "<!-- HTML Form -->\n<form method=\"post\" action=\"process.php\">\n  <input type=\"text\" name=\"username\">\n  <input type=\"submit\">\n</form>\n\n<?php\n// In process.php\nif ($_SERVER[\"REQUEST_METHOD\"] == \"POST\") {\n  $username = $_POST[\"username\"];\n  echo \"Hello, \" . $username;\n}\n?>",
+            "copyId": "php-forms"
+          },
+          {
+            "concept": "Sessions",
+            "description": "Store user data across multiple pages",
+            "note": "User ki information ko multiple pages ke bich store karne ke liye sessions use hote hain",
+            "code": "<?php\n// Start session\nsession_start();\n\n// Set session variables\n$_SESSION[\"username\"] = \"John\";\n$_SESSION[\"login_time\"] = time();\n\n// Access session variables on another page\necho \"Welcome \" . $_SESSION[\"username\"];\n\n// Destroy session\nsession_destroy();\n?>",
+            "copyId": "php-sessions"
+          },
+          {
+            "concept": "Cookies",
+            "description": "Store data in browser",
+            "note": "Data ko user ke browser mein store karne ke liye cookies use hoti hain",
+            "code": "<?php\n// Set cookie\nsetcookie(\"user\", \"John\", time() + 3600, \"/\"); // 1 hour\n\n// Access cookie\nif(isset($_COOKIE[\"user\"])) {\n  echo \"Welcome \" . $_COOKIE[\"user\"];\n}\n\n// Delete cookie\nsetcookie(\"user\", \"\", time() - 3600, \"/\");\n?>",
+            "copyId": "php-cookies"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mysql",
+    "title": "MySQL",
+    "intro": "MySQL ek open-source relational database management system (RDBMS) hai jo structured way mein data store karta hai. Data ko tables mein store kiya jata hai jahan columns data structure define karte hain aur rows actual data entries hote hain.",
+    "colorClasses": {
+      "triggerActive": "data-[state=active]:bg-amber-100 data-[state=active]:text-amber-900 dark:data-[state=active]:bg-amber-900 dark:data-[state=active]:text-amber-100",
+      "introBg": "bg-amber-50 dark:bg-amber-950",
+      "introBorder": "border-amber-200 dark:border-amber-800",
+      "introText": "text-amber-600 dark:text-amber-400",
+      "noteText": "text-amber-600 dark:text-amber-400"
+    },
+    "sections": [
+      {
+        "id": "mysql-basics",
+        "title": "MySQL Basics",
+        "items": [
+          {
+            "concept": "Database Creation",
+            "description": "Create a new database",
+            "note": "Naya database create karne ke liye command",
+            "code": "CREATE DATABASE my_db;",
+            "copyId": "mysql-create-db"
+          },
+          {
+            "concept": "Table Creation",
+            "description": "Create a table with columns",
+            "note": "Database mein table create karna jisme columns define kiye jate hain",
+            "code": "CREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100) NOT NULL,\n  email VARCHAR(100) UNIQUE,\n  age INT,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n);",
+            "copyId": "mysql-create-table"
+          },
+          {
+            "concept": "Data Types",
+            "description": "Common MySQL data types",
+            "note": "MySQL mein commonly use hone wale data types",
+            "code": "INT - Integer numbers\nVARCHAR(size) - Variable length string\nTEXT - Long text string\nDATE - Date (YYYY-MM-DD)\nDATETIME - Date and time\nTIMESTAMP - Timestamp\nDECIMAL(p,s) - Precise decimal\nBOOLEAN / TINYINT(1) - True/False",
+            "copyId": "mysql-data-types"
+          }
+        ]
+      },
+      {
+        "id": "mysql-crud",
+        "title": "MySQL CRUD Operations",
+        "items": [
+          {
+            "concept": "INSERT",
+            "description": "Add new records",
+            "note": "Table mein naye records add karne ke liye INSERT statement use hota hai",
+            "code": "INSERT INTO users (name, email, age) \nVALUES ('John Doe', 'john@example.com', 25);\n\n-- Multiple rows\nINSERT INTO users (name, email, age) VALUES\n('Jane Smith', 'jane@example.com', 28),\n('Bob Johnson', 'bob@example.com', 35);",
+            "copyId": "mysql-insert"
+          },
+          {
+            "concept": "SELECT",
+            "description": "Retrieve data from tables",
+            "note": "Tables se data retrieve karne ke liye SELECT statement use hota hai",
+            "code": "-- All columns, all rows\nSELECT * FROM users;\n\n-- Specific columns\nSELECT name, email FROM users;\n\n-- With conditions\nSELECT * FROM users WHERE age > 30;\n\n-- Ordering results\nSELECT * FROM users ORDER BY name ASC;\n\n-- Limit results\nSELECT * FROM users LIMIT 10;",
+            "copyId": "mysql-select"
+          },
+          {
+            "concept": "UPDATE",
+            "description": "Modify existing data",
+            "note": "Existing data ko modify karne ke liye UPDATE statement use hota hai",
+            "code": "UPDATE users\nSET email = 'new_email@example.com'\nWHERE id = 1;\n\n-- Update multiple columns\nUPDATE users\nSET age = 26, name = 'John Smith'\nWHERE id = 1;",
+            "copyId": "mysql-update"
+          },
+          {
+            "concept": "DELETE",
+            "description": "Remove records",
+            "note": "Table se records delete karne ke liye DELETE statement use hota hai",
+            "code": "DELETE FROM users WHERE id = 1;\n\n-- Delete all records (dangerous!)\nDELETE FROM users;",
+            "copyId": "mysql-delete"
+          }
+        ]
+      },
+      {
+        "id": "mysql-advanced",
+        "title": "MySQL Advanced Queries",
+        "items": [
+          {
+            "concept": "JOIN",
+            "description": "Combine rows from multiple tables",
+            "note": "Multiple tables ko combine karke data retrieve karne ke liye JOIN use hota hai",
+            "code": "-- INNER JOIN (only matching rows)\nSELECT users.name, orders.product\nFROM users\nINNER JOIN orders ON users.id = orders.user_id;\n\n-- LEFT JOIN (all rows from left table)\nSELECT users.name, orders.product\nFROM users\nLEFT JOIN orders ON users.id = orders.user_id;\n\n-- RIGHT JOIN (all rows from right table)\nSELECT users.name, orders.product\nFROM users\nRIGHT JOIN orders ON users.id = orders.user_id;",
+            "copyId": "mysql-join"
+          },
+          {
+            "concept": "WHERE Clauses",
+            "description": "Filter records",
+            "note": "Records ko filter karne ke liye WHERE clause use hota hai",
+            "code": "-- Basic conditions\nSELECT * FROM users WHERE age > 25;\n\n-- Multiple conditions\nSELECT * FROM users\nWHERE age > 25 AND country = 'USA';\n\n-- IN operator\nSELECT * FROM users\nWHERE country IN ('USA', 'Canada', 'Mexico');\n\n-- LIKE (pattern matching)\nSELECT * FROM users\nWHERE email LIKE '%gmail.com';",
+            "copyId": "mysql-where"
+          },
+          {
+            "concept": "Aggregate Functions",
+            "description": "Perform calculations on data",
+            "note": "Data par calculations perform karne ke liye aggregate functions use hote hain",
+            "code": "-- COUNT\nSELECT COUNT(*) FROM users;\n\n-- SUM\nSELECT SUM(amount) FROM orders;\n\n-- AVG\nSELECT AVG(age) FROM users;\n\n-- MIN/MAX\nSELECT MIN(age), MAX(age) FROM users;\n\n-- GROUP BY\nSELECT country, COUNT(*) as user_count\nFROM users\nGROUP BY country;",
+            "copyId": "mysql-aggregate"
+          },
+          {
+            "concept": "Subqueries",
+            "description": "Nested queries",
+            "note": "Query ke andar query likhna, complex operations ke liye useful",
+            "code": "-- Subquery in WHERE\nSELECT * FROM users\nWHERE id IN (SELECT user_id FROM orders \n              WHERE amount > 1000);\n\n-- Subquery in FROM\nSELECT avg_age FROM \n(SELECT AVG(age) as avg_age FROM users) as temp;",
+            "copyId": "mysql-subquery"
+          }
+        ]
+      },
+      {
+        "id": "mysql-indexes",
+        "title": "MySQL Indexes & Constraints",
+        "items": [
+          {
+            "concept": "Indexes",
+            "description": "Speed up queries",
+            "note": "Queries ko fast karne ke liye indexes banaye jate hain",
+            "code": "-- Create index on existing table\nCREATE INDEX idx_name ON users(name);\n\n-- Create unique index\nCREATE UNIQUE INDEX idx_email ON users(email);\n\n-- Create composite index\nCREATE INDEX idx_name_email ON users(name, email);",
+            "copyId": "mysql-index"
+          },
+          {
+            "concept": "Primary Key",
+            "description": "Unique identifier for rows",
+            "note": "Har row ko uniquely identify karne ke liye primary key use hoti hai",
+            "code": "-- During table creation\nCREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100)\n);\n\n-- Add to existing table\nALTER TABLE users\nADD PRIMARY KEY (id);",
+            "copyId": "mysql-primary-key"
+          },
+          {
+            "concept": "Foreign Key",
+            "description": "Maintain referential integrity",
+            "note": "Tables ke beech relationship maintain karne ke liye foreign key use hoti hai",
+            "code": "CREATE TABLE orders (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  user_id INT,\n  product VARCHAR(100),\n  FOREIGN KEY (user_id) REFERENCES users(id)\n);",
+            "copyId": "mysql-foreign-key"
+          },
+          {
+            "concept": "Constraints",
+            "description": "Rules for data in tables",
+            "note": "Tables mein data ke liye rules set karne ke liye constraints use hote hain",
+            "code": "-- NOT NULL constraint\nCREATE TABLE products (\n  id INT,\n  name VARCHAR(100) NOT NULL\n);\n\n-- UNIQUE constraint\nCREATE TABLE users (\n  id INT,\n  email VARCHAR(100) UNIQUE\n);\n\n-- CHECK constraint\nCREATE TABLE users (\n  id INT,\n  age INT CHECK (age >= 18)\n);",
+            "copyId": "mysql-constraints"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "js",
+    "title": "JavaScript",
+    "intro": "JavaScript ek programming language hai jo primarily web pages ko interactive banane ke liye use hoti hai. Ye client-side scripting language hai jise browser mein execute kiya jata hai.",
+    "colorClasses": {
+      "triggerActive": "data-[state=active]:bg-red-100 data-[state=active]:text-red-900 dark:data-[state=active]:bg-red-900 dark:data-[state=active]:text-red-100",
+      "introBg": "bg-red-50 dark:bg-red-950",
+      "introBorder": "border-red-200 dark:border-red-800",
+      "introText": "text-red-600 dark:text-red-400",
+      "noteText": "text-red-600 dark:text-red-400"
+    },
+    "sections": [
+      {
+        "id": "js-basics",
+        "title": "JavaScript Basics",
+        "items": [
+          {
+            "concept": "Variables",
+            "description": "Store data values",
+            "note": "Data ko store karne ke liye variables use hote hain",
+            "code": "// var (old way, function scoped)\nvar name = \"John\";\n\n// let (block scoped, can be reassigned)\nlet age = 25;\nage = 26; // valid\n\n// const (block scoped, cannot be reassigned)\nconst PI = 3.14;\n// PI = 3.15; // error!",
+            "copyId": "js-variables"
+          },
+          {
+            "concept": "Data Types",
+            "description": "Different types of values",
+            "note": "JavaScript mein different types ke values store ki ja sakti hain",
+            "code": "// Primitive types\nlet str = \"Hello\"; // String\nlet num = 42; // Number\nlet decimal = 3.14; // Number\nlet bool = true; // Boolean\nlet nothing = null; // Null\nlet undef = undefined; // Undefined\nlet sym = Symbol('id'); // Symbol\nlet bigInt = 1234567890123456789012345n; // BigInt\n\n// Reference types\nlet arr = [1, 2, 3]; // Array\nlet obj = { name: \"John\", age: 25 }; // Object\nlet func = function() { return \"Hello\" }; // Function",
+            "copyId": "js-data-types"
+          },
+          {
+            "concept": "Operators",
+            "description": "Perform operations",
+            "note": "Operations perform karne ke liye operators use hote hain",
+            "code": "// Arithmetic\nlet sum = 5 + 3; // 8\nlet diff = 5 - 3; // 2\nlet product = 5 * 3; // 15\nlet quotient = 6 / 3; // 2\nlet remainder = 7 % 3; // 1\n\n// Comparison\nlet equal = 5 == \"5\"; // true (value equality)\nlet strictEqual = 5 === \"5\"; // false (type + value)\nlet notEqual = 5 != \"6\"; // true\nlet greaterThan = 5 > 3; // true\n\n// Logical\nlet and = (5 > 3) && (2 < 4); // true\nlet or = (5 < 3) || (2 < 4); // true\nlet not = !(5 > 3); // false",
+            "copyId": "js-operators"
+          }
+        ]
+      },
+      {
+        "id": "js-control-structures",
+        "title": "JavaScript Control Structures",
+        "items": [
+          {
+            "concept": "Conditionals",
+            "description": "Make decisions based on conditions",
+            "note": "Conditions ke basis par decision lene ke liye conditionals use hote hain",
+            "code": "// if-else\nif (age >= 18) {\n  console.log(\"Adult\");\n} else if (age >= 13) {\n  console.log(\"Teenager\");\n} else {\n  console.log(\"Child\");\n}\n\n// Ternary operator\nlet status = (age >= 18) ? \"Adult\" : \"Minor\";\n\n// Switch statement\nswitch (day) {\n  case \"Monday\":\n    console.log(\"Start of week\");\n    break;\n  case \"Friday\":\n    console.log(\"End of week\");\n    break;\n  default:\n    console.log(\"Regular day\");\n}",
+            "copyId": "js-conditionals"
+          },
+          {
+            "concept": "Loops",
+            "description": "Repeat code execution",
+            "note": "Code ko baar baar execute karne ke liye loops use hote hain",
+            "code": "// for loop\nfor (let i = 0; i < 5; i++) {\n  console.log(i);\n}\n\n// while loop\nlet i = 0;\nwhile (i < 5) {\n  console.log(i);\n  i++;\n}\n\n// do-while loop\nlet j = 0;\ndo {\n  console.log(j);\n  j++;\n} while (j < 5);\n\n// for...of (iterate arrays)\nconst nums = [1, 2, 3];\nfor (const num of nums) {\n  console.log(num);\n}\n\n// for...in (iterate object properties)\nconst person = {name: \"John\", age: 25};\nfor (const prop in person) {\n  console.log(`${prop}: ${person[prop]}`);\n}",
+            "copyId": "js-loops"
+          }
+        ]
+      },
+      {
+        "id": "js-functions",
+        "title": "JavaScript Functions",
+        "items": [
+          {
+            "concept": "Function Declaration",
+            "description": "Define reusable code blocks",
+            "note": "Reusable code blocks define karne ke liye functions ka use hota hai",
+            "code": "// Function declaration\nfunction greet(name) {\n  return \"Hello, \" + name;\n}\n\n// Function expression\nconst sayHello = function(name) {\n  return \"Hello, \" + name;\n};\n\n// Arrow function\nconst greetUser = (name) => {\n  return \"Hello, \" + name;\n};\n\n// Simplified arrow function\nconst shortGreet = name => \"Hello, \" + name;",
+            "copyId": "js-function-declaration"
+          },
+          {
+            "concept": "Parameters & Arguments",
+            "description": "Pass data to functions",
+            "note": "Functions ko data pass karne ke liye parameters aur arguments use hote hain",
+            "code": "// Basic parameters\nfunction add(a, b) {\n  return a + b;\n}\nconst result = add(5, 3); // 8\n\n// Default parameters\nfunction greet(name = \"Guest\") {\n  return \"Hello, \" + name;\n}\ngreet(); // \"Hello, Guest\"\n\n// Rest parameters\nfunction sum(...numbers) {\n  return numbers.reduce((total, num) => total + num, 0);\n}\nsum(1, 2, 3, 4); // 10",
+            "copyId": "js-function-params"
+          },
+          {
+            "concept": "Scope & Closure",
+            "description": "Variable accessibility",
+            "note": "Variables kahan accessible hain, ye scope determine karta hai",
+            "code": "// Global scope\nlet globalVar = \"I'm global\";\n\nfunction example() {\n  // Function scope\n  let functionVar = \"I'm in a function\";\n  console.log(globalVar); // Accessible\n  \n  if (true) {\n    // Block scope\n    let blockVar = \"I'm in a block\";\n    console.log(functionVar); // Accessible\n  }\n  \n  // console.log(blockVar); // Error!\n}\n\n// Closure example\nfunction createCounter() {\n  let count = 0; // Private variable\n  return function() {\n    count++;\n    return count;\n  };\n}\nconst counter = createCounter();\ncounter(); // 1\ncounter(); // 2",
+            "copyId": "js-scope-closure"
+          }
+        ]
+      },
+      {
+        "id": "js-arrays-objects",
+        "title": "JavaScript Arrays & Objects",
+        "items": [
+          {
+            "concept": "Arrays",
+            "description": "Ordered collections of values",
+            "note": "Values ko ordered way mein store karne ke liye arrays use hote hain",
+            "code": "// Creating arrays\nlet fruits = [\"Apple\", \"Banana\", \"Orange\"];\nlet mixed = [1, \"Hello\", true, null];\nlet nested = [1, [2, 3], [4, [5, 6]]];\n\n// Accessing elements\nconsole.log(fruits[0]); // \"Apple\"\n\n// Array methods\nfruits.push(\"Mango\"); // Add to end\nfruits.pop(); // Remove from end\nfruits.unshift(\"Grape\"); // Add to beginning\nfruits.shift(); // Remove from beginning\nfruits.splice(1, 1, \"Peach\"); // Remove and insert\nlet sliced = fruits.slice(1, 3); // Extract portion\nlet combined = fruits.concat([\"Kiwi\", \"Melon\"]); // Combine",
+            "copyId": "js-arrays"
+          },
+          {
+            "concept": "Array Methods",
+            "description": "Operate on arrays",
+            "note": "Arrays par operations perform karne ke liye array methods use hote hain",
+            "code": "const numbers = [1, 2, 3, 4, 5];\n\n// forEach - iterate over elements\nnumbers.forEach(num => console.log(num));\n\n// map - transform elements\nconst doubled = numbers.map(num => num * 2);\n// [2, 4, 6, 8, 10]\n\n// filter - select elements\nconst evens = numbers.filter(num => num % 2 === 0);\n// [2, 4]\n\n// reduce - aggregate values\nconst sum = numbers.reduce((total, num) => total + num, 0);\n// 15\n\n// find - first matching element\nconst found = numbers.find(num => num > 3);\n// 4\n\n// some/every - test conditions\nconst hasEven = numbers.some(num => num % 2 === 0); // true\nconst allPositive = numbers.every(num => num > 0); // true",
+            "copyId": "js-array-methods"
+          },
+          {
+            "concept": "Objects",
+            "description": "Key-value pairs",
+            "note": "Key-value pairs ke form mein data store karne ke liye objects use hote hain",
+            "code": "// Creating objects\nconst person = {\n  name: \"John\",\n  age: 25,\n  isEmployed: true,\n  greet: function() {\n    return \"Hello, I'm \" + this.name;\n  }\n};\n\n// Accessing properties\nconsole.log(person.name); // Dot notation\nconsole.log(person[\"age\"]); // Bracket notation\n\n// Methods\nconsole.log(person.greet());\n\n// Add/update properties\nperson.city = \"New York\";\nperson.age = 26;\n\n// Delete properties\ndelete person.isEmployed;",
+            "copyId": "js-objects"
+          }
+        ]
+      },
+      {
+        "id": "js-dom",
+        "title": "JavaScript DOM Manipulation",
+        "items": [
+          {
+            "concept": "Selecting Elements",
+            "description": "Access HTML elements",
+            "note": "HTML elements ko access karne ke liye DOM methods use hote hain",
+            "code": "// Get by ID\nconst element = document.getElementById(\"myId\");\n\n// Get by class\nconst elements = document.getElementsByClassName(\"myClass\");\n\n// Get by tag name\nconst divs = document.getElementsByTagName(\"div\");\n\n// Query selectors (modern approach)\nconst el = document.querySelector(\"#myId\"); // first match\nconst all = document.querySelectorAll(\".myClass\"); // all matches",
+            "copyId": "js-dom-select"
+          },
+          {
+            "concept": "Modifying Elements",
+            "description": "Change HTML content and style",
+            "note": "HTML elements ke content aur style ko modify karne ke liye",
+            "code": "// Change text content\nelement.textContent = \"New text\";\n\n// Change HTML content\nelement.innerHTML = \"<span>New HTML</span>\";\n\n// Change attributes\nelement.setAttribute(\"src\", \"new-image.jpg\");\nelement.id = \"newId\";\nelement.href = \"https://example.com\";\n\n// Change styles\nelement.style.color = \"red\";\nelement.style.fontSize = \"20px\";\nelement.style.display = \"none\";\n\n// Classes\nelement.classList.add(\"highlight\");\nelement.classList.remove(\"hidden\");\nelement.classList.toggle(\"active\");\nelement.classList.contains(\"highlight\"); // boolean",
+            "copyId": "js-dom-modify"
+          },
+          {
+            "concept": "Creating Elements",
+            "description": "Add new elements",
+            "note": "Naye HTML elements create karke DOM mein add karna",
+            "code": "// Create element\nconst newDiv = document.createElement(\"div\");\n\n// Add content\nnewDiv.textContent = \"New element\";\n\n// Add attributes\nnewDiv.id = \"myNewDiv\";\nnewDiv.className = \"box highlight\";\n\n// Append to document\ndocument.body.appendChild(newDiv);\n\n// Insert before another element\nconst referenceEl = document.getElementById(\"refEl\");\ndocument.body.insertBefore(newDiv, referenceEl);\n\n// Remove element\nelement.remove();\n// or\nelement.parentNode.removeChild(element);",
+            "copyId": "js-dom-create"
+          },
+          {
+            "concept": "Event Handling",
+            "description": "Respond to user interactions",
+            "note": "User interactions ko handle karne ke liye events use hote hain",
+            "code": "// Add event listener (preferred method)\nelement.addEventListener(\"click\", function(event) {\n  console.log(\"Element clicked!\");\n  console.log(event); // Event object\n});\n\n// Events with arrow functions\nelement.addEventListener(\"mouseover\", (e) => {\n  e.target.style.color = \"red\";\n});\n\n// Common events\n// click, dblclick, mouseover, mouseout\n// keydown, keyup, keypress\n// submit, focus, blur, change\n// load, DOMContentLoaded\n\n// Remove event listener\nfunction handleClick() {\n  console.log(\"Clicked\");\n}\nelement.addEventListener(\"click\", handleClick);\nelement.removeEventListener(\"click\", handleClick);",
+            "copyId": "js-dom-events"
+          }
+        ]
+      },
+      {
+        "id": "js-async",
+        "title": "JavaScript Asynchronous Programming",
+        "items": [
+          {
+            "concept": "Callbacks",
+            "description": "Functions passed as arguments",
+            "note": "Ek function ko dusre function mein as an argument pass karna",
+            "code": "// Basic callback\nfunction getData(callback) {\n  setTimeout(() => {\n    const data = \"Here is your data\";\n    callback(data);\n  }, 2000);\n}\n\ngetData(function(data) {\n  console.log(data);\n});\n\n// Callback hell (problematic)\ngetData(function(data1) {\n  getMoreData(data1, function(data2) {\n    getEvenMoreData(data2, function(data3) {\n      // Too many nested callbacks\n    });\n  });\n});",
+            "copyId": "js-callbacks"
+          },
+          {
+            "concept": "Promises",
+            "description": "Handle asynchronous operations",
+            "note": "Asynchronous operations ko handle karne ke liye Promises use hote hain",
+            "code": "// Creating a promise\nconst myPromise = new Promise((resolve, reject) => {\n  // Async operation\n  setTimeout(() => {\n    const success = true;\n    if (success) {\n      resolve(\"Operation successful\");\n    } else {\n      reject(\"Operation failed\");\n    }\n  }, 2000);\n});\n\n// Using promises\nmyPromise\n  .then(result => {\n    console.log(result);\n    return \"Next step\";\n  })\n  .then(nextResult => {\n    console.log(nextResult);\n  })\n  .catch(error => {\n    console.error(error);\n  });\n\n// Promise.all (wait for multiple)\nPromise.all([promise1, promise2])\n  .then(results => console.log(results));",
+            "copyId": "js-promises"
+          },
+          {
+            "concept": "Async/Await",
+            "description": "Cleaner way to handle promises",
+            "note": "Promises ko more readable way mein handle karne ke liye async/await use hota hai",
+            "code": "// Async function\nasync function fetchData() {\n  try {\n    // Await pauses execution until promise resolves\n    const response = await fetch('https://api.example.com/data');\n    const data = await response.json();\n    console.log(data);\n    return data;\n  } catch (error) {\n    console.error('Error:', error);\n  }\n}\n\n// Call async function\nfetchData().then(result => {\n  console.log('Processing result:', result);\n});",
+            "copyId": "js-async-await"
+          },
+          {
+            "concept": "Fetch API",
+            "description": "Make HTTP requests",
+            "note": "Server se data fetch karne ke liye Fetch API use hoti hai",
+            "code": "// GET request\nfetch('https://api.example.com/data')\n  .then(response => {\n    if (!response.ok) {\n      throw new Error('Network response was not ok');\n    }\n    return response.json();\n  })\n  .then(data => console.log(data))\n  .catch(error => console.error('Error:', error));\n\n// POST request\nfetch('https://api.example.com/users', {\n  method: 'POST',\n  headers: {\n    'Content-Type': 'application/json',\n  },\n  body: JSON.stringify({\n    name: 'John',\n    email: 'john@example.com'\n  })\n})",
+            "copyId": "js-fetch"
+          }
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,86 @@
+[
+  {
+    "id": "m9d7jw8h7788om5",
+    "title": "Interview Questions for Laravel Developer 1",
+    "category": "MySQL",
+    "questions": [
+      {
+        "id": "1744400535442",
+        "text": "Which of the following is not a MySQL index type?",
+        "options": [
+          "Full-text",
+          "Spatial",
+          "Descending",
+          "CHAR"
+        ],
+        "correctAnswer": "CHAR"
+      },
+      {
+        "id": "1744400910746",
+        "text": "Which of the following queries correctly retrieves all employee records whose birthday is today in MySQL?",
+        "options": [
+          "SELECT * FROM employees WHERE birth_date = CURDATE();",
+          "SELECT * FROM employees WHERE MONTH(birth_date) = MONTH(CURDATE()) AND DAY(birth_date) = DAY(CURDATE());",
+          "SELECT * FROM employees WHERE DAYOFYEAR(birth_date) = DAYOFYEAR(CURDATE());",
+          "SELECT * FROM employees WHERE birth_date = NOW();"
+        ],
+        "correctAnswer": "SELECT * FROM employees WHERE MONTH(birth_date) = MONTH(CURDATE()) AND DAY(birth_date) = DAY(CURDATE());"
+      },
+      {
+        "id": "1744401111054",
+        "text": "Which of the following is a valid MySQL driver for PHP?",
+        "options": [
+          "PDO_MYSQL",
+          "MYSQL_CONNECTOR",
+          "mysqli_connect_driver",
+          "MySQLPDOEngine"
+        ],
+        "correctAnswer": "PDO_MYSQL"
+      },
+      {
+        "id": "1744401185865",
+        "text": "What is a key difference between MySQL and MySQLi extensions in PHP?",
+        "options": [
+          "MySQLi supports multiple databases at once, while MySQL does not",
+          "MySQLi is object-oriented only, while MySQL is procedural only",
+          "MySQLi supports prepared statements, but MySQL does not",
+          "MySQL is faster than MySQLi"
+        ],
+        "correctAnswer": "MySQLi supports prepared statements, but MySQL does not"
+      },
+      {
+        "id": "1744401250530",
+        "text": "Which of the following is a feature supported by MySQLi but not by the old MySQL extension?",
+        "options": [
+          "SQL transactions",
+          "Persistent connections",
+          "SSL encryption",
+          "Prepared statements"
+        ],
+        "correctAnswer": "Prepared statements"
+      },
+      {
+        "id": "1744401311282",
+        "text": "What is the primary difference between MyISAM and InnoDB storage engines in MySQL",
+        "options": [
+          "MyISAM supports transactions, while InnoDB does not",
+          "InnoDB supports foreign keys, while MyISAM does not",
+          "MyISAM is faster for read/write operations compared to InnoDB",
+          "InnoDB stores data in flat files, while MyISAM uses binary format"
+        ],
+        "correctAnswer": "InnoDB supports foreign keys, while MyISAM does not"
+      },
+      {
+        "id": "1744401372942",
+        "text": "Which of the following is TRUE about the InnoDB storage engine?",
+        "options": [
+          "It does not support row-level locking",
+          "It is not crash-safe",
+          "It supports foreign key constraints",
+          "It is the default engine for read-heavy applications"
+        ],
+        "correctAnswer": "It supports foreign key constraints"
+      }
+    ]
+  }
+]
