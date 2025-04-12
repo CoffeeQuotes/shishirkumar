@@ -4,7 +4,9 @@
   "private": true,
   "pnpm": {
     "allowedBuildScripts": [
-      "@prisma/client"
+      "@prisma/client",
+      "prisma",
+      "@prisma/engines"
     ]
   },
   "scripts": {
