@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "pnpm": {
-    "allowedBuildScripts": [
+    "onlyBuiltDependencies": [
       "@prisma/client",
       "prisma",
       "@prisma/engines"
