@@ -2,18 +2,15 @@
   "name": "my-v0-project",
   "version": "0.1.0",
   "private": true,
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@prisma/client",
-      "prisma",
-      "@prisma/engines"
-    ]
-  },
   "scripts": {
+    "generate": "prisma generate",
     "dev": "next dev",
     "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "lint": "next lint"
+  },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
