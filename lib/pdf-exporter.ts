@@ -1,5 +1,3 @@
-// lib/pdf-export.ts
-
 import { jsPDF, TextOptionsLight } from "jspdf";
 
 // --- Main Export Function ---
@@ -251,7 +249,7 @@ function addPageNumbers(
     // **** FIX: Access color via the passed 'colors' object ****
     doc.setTextColor(colors.GREY_PAGE_NUMBER);
     doc.text(
-      `Page ${i} of ${totalPages}`,
+      `Page ${i} of ${totalPages} - Shishir Kumar - https://shishirkumar.vercel.app/`,
       pageWidth / 2,
       pageHeight - (margin / 2) + 3,
       { align: 'center' }

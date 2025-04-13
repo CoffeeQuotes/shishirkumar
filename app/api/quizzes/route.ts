@@ -1,10 +1,5 @@
-// app/api/quizzes/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-// REMOVE: import { PrismaClient } from '@prisma/client';
-import prisma from '@/lib/prisma'; // Adjust path if your lib folder is elsewhere
-
-// REMOVE: const prisma = new PrismaClient();
-
+import prisma from '@/lib/prisma';
 // Define the quiz types (keep as is or move)
 type Question = {
   id: string;
@@ -75,7 +70,7 @@ const addQuizToDB = async (quiz: Quiz): Promise<Quiz> => {
         },
       });
 
-      // Transform the response (keep as is)
+
       return {
         id: createdQuiz.id,
         title: createdQuiz.title,
