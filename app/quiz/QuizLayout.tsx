@@ -1,15 +1,20 @@
 import React from "react";
-
+import ThemeToggle from "@/components/ui/ThemeToggle";
 const QuizLayout: React.FC<{
     children?: React.ReactNode;
     loading?: boolean;
-}> = ({ children, loading }) => {
+    theme?: string;
+    setTheme: (theme: string) => void;
+}> = ({ children, loading, theme, setTheme }) => {
     if (loading) {
         return (
             <div className="min-h-screen bg-background text-foreground">
                 <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur">
                     <div className="container flex h-16 items-center justify-between">
                         <h1 className="text-2xl font-semibold">Quiz Platform</h1>
+                        <div className="flex items-center gap-4">
+                            <ThemeToggle theme={theme || "light"} setTheme={(value) => setTheme(value)} />
+                        </div>
                     </div>
                 </header>
                 <main className="container py-6 md:py-10">
@@ -34,6 +39,9 @@ const QuizLayout: React.FC<{
             <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur">
                 <div className="container flex h-16 items-center justify-between">
                     <h1 className="text-2xl font-semibold">Quiz Platform</h1>
+                    <div className="flex items-center gap-4">
+                        <ThemeToggle theme={theme || "light"} setTheme={(value) => setTheme(value)} />
+                    </div>
                 </div>
             </header>
             <main className="container py-6 md:py-10">

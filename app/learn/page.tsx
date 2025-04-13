@@ -4,11 +4,11 @@ import { useState, useMemo, useCallback } from "react"
 import { useTheme } from "next-themes"
 import { useToast } from "@/hooks/use-toast"
 import cheatsheetData from "./cheatsheet.json" 
-import { exportCheatsheetToPdf } from "@/lib/pdf-exporter" // Extracted PDF logic
+import { exportCheatsheetToPdf } from "@/lib/pdf-exporter"
 import { useDebounce } from "@/hooks/use-debounce"
 import CheatsheetTabs from "@/app/learn/CheatsheetTabs";
 import SearchBar from "@/app/learn/SearchBar";
-import ThemeToggle from "@/components/ui/ThemeToggle"; // Custom hook for debouncing
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import PdfExportButton from "./PdfExportButton"
 import NoResultsMessage from "./NoResultsMessage"
 import {CopyState, Section, Tab, TabData} from "@/lib/definitions";

@@ -74,3 +74,10 @@ export interface CopyState {
     id: string | null;
     timestamp: number;
 }
+
+export type QuizListItem = {
+    id: string;
+    title: string;
+    category: string;
+    questions: any[];
+};

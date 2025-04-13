@@ -8,19 +8,15 @@ import CreateQuizForm from "./CreateQuizForm";
 import QuizQuestion from "./QuizQuestion";
 import QuizResults from "./QuizResults";
 import { fetchQuizzes, saveQuizToJson } from "./quizUtils";
-import { type Quiz } from "@/lib/definitions";
-
+import { type Quiz , type Question } from "@/lib/definitions";
+import {useTheme} from "next-themes";
 // Define the expected quiz type for QuizList component
-type QuizListItem = {
-  id: string;
-  title: string;
-  category: string;
-  questions: any[];
-};
+
 
 export default function QuizPage() {
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [isCreating, setIsCreating] = useState(false);
+  const { theme, setTheme } = useTheme();
   const [newQuiz, setNewQuiz] = useState<Quiz>({
     id: Date.now().toString(), // Adding a default id
     title: "",
@@ -96,7 +92,7 @@ export default function QuizPage() {
 
 
   if (isLoading) {
-    return <QuizLayout loading />;
+    return <QuizLayout loading theme={theme} setTheme={setTheme} />;
   }
 
   if (selectedQuizId) {
@@ -105,7 +101,7 @@ export default function QuizPage() {
 
     if (quizCompleted) {
       return (
-          <QuizLayout>
+          <QuizLayout theme={theme} setTheme={setTheme}>
             <QuizResults
                 quiz={selectedQuiz}
                 userAnswers={userAnswers}
@@ -117,7 +113,7 @@ export default function QuizPage() {
     }
 
     return (
-      <QuizLayout>
+      <QuizLayout theme={theme} setTheme={setTheme}>
         <QuizQuestion
           quiz={selectedQuiz}
           currentQuestionIndex={currentQuestionIndex}
@@ -143,7 +139,7 @@ export default function QuizPage() {
 
   if (isCreating) {
     return (
-        <QuizLayout>
+        <QuizLayout theme={theme} setTheme={setTheme}>
           <CreateQuizForm
               newQuiz={newQuiz}
               onTitleChange={(title) => setNewQuiz(prev => ({ ...prev, title }))}
@@ -164,7 +160,7 @@ export default function QuizPage() {
   }
 
   return (
-      <QuizLayout>
+      <QuizLayout theme={theme} setTheme={setTheme}>
         <QuizList
                 quizzes={quizzes.filter(quiz => quiz.id !== undefined) as QuizListItem[]}
                 filterCategory={filterCategory}
