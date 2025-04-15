@@ -18,7 +18,7 @@ export default function AddNewQuestionForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const validOptions = options
       .map(opt => opt.trim())
       .filter(opt => opt !== "");
@@ -40,7 +40,7 @@ export default function AddNewQuestionForm() {
       correctAnswer
     };
 
-    const event = new CustomEvent('addquestion', { 
+    const event = new CustomEvent('addquestion', {
       detail: newQuestion,
       bubbles: true,
       composed: true
@@ -65,7 +65,7 @@ export default function AddNewQuestionForm() {
           value={questionText}
           onChange={(e) => setQuestionText(e.target.value)}
           placeholder="What is...?"
-          className={inputClasses}
+          className={`${inputClasses} w-full`}
         />
       </div>
 
@@ -73,13 +73,13 @@ export default function AddNewQuestionForm() {
       <fieldset className="space-y-3">
         <legend className={`${labelClasses} mb-1`}>Options</legend>
         {options.map((option, idx) => (
-          <div key={`option-${idx}`} className="flex items-center space-x-3">
+          <div key={`option-${idx}`} className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
             <input
               type="text"
               value={option}
               onChange={(e) => handleOptionChange(idx, e.target.value)}
               placeholder={`Option ${idx + 1}`}
-              className={`${inputClasses} flex-1`}
+              className={`${inputClasses} flex-1 w-full`}
             />
             <label className="flex items-center space-x-1.5 cursor-pointer p-2">
               <input

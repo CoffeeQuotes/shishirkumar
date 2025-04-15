@@ -38,7 +38,7 @@ export default function Home() {
               
               <button
                 onClick={() => signIn("github")}
-                className="flex items-center justify-center gap-2 w-full py-3 font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors"
+                className="flex items-center justify-center gap-2 w-full py-3 font-medium btn-brave"
               >
                 <Github size={20} />
                 Sign in with GitHub

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect } from "react"
-import { useTheme } from "next-themes"
 import { useToast } from "@/hooks/use-toast"
 import cheatsheetData from "./cheatsheet.json" 
 import { exportCheatsheetToPdf } from "@/lib/pdf-exporter"
@@ -211,8 +210,8 @@ export default function CheatsheetPage() {
       <main className="container py-6"> 
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">Laravel, PHP, MySQL & JS Cheatsheet</h1>
-          <p className="text-muted-foreground">Comprehensive revision guide created by Shishir Kumar</p>
-          <div className="flex flex-col md:flex-row flex-start md:justify-end">  
+          <p className="text-muted-foreground mb-4">Comprehensive revision guide created by Shishir Kumar</p>
+          <div className="flex flex-col md:flex-row flex-start md:justify-end gap-2">
             <SearchBar 
                 searchTerm={searchTerm} 
                 setSearchTerm={setSearchTerm} 
@@ -242,7 +241,7 @@ export default function CheatsheetPage() {
       <footer className="border-t py-6 md:py-0">
         <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
           <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-            Laravel, PHP, MySQL & JavaScript Cheatsheet - All the important concepts for your interview preparation
+            Laravel, PHP, MySQL &amp; JavaScript Cheatsheet - All the important concepts for your interview preparation
           </p>
           <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
             <span className="font-bold text-foreground">Thank You! Best of Luck! 🚀</span>

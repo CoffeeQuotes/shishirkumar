@@ -140,3 +140,9 @@
 .copy-btn:active {
   transform: scale(0.9);
 }
+
+/* In your global styles or Tailwind config */
+pre, code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
