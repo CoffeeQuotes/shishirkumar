@@ -2,18 +2,20 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { categories } from "./QuizConstants";
+import { useRouter } from "next/navigation";
 import QuizLayout from "./QuizLayout";
 import QuizList from "./QuizList";
 import CreateQuizForm from "./CreateQuizForm";
 import QuizQuestion from "./QuizQuestion";
 import QuizResults from "./QuizResults";
 import { fetchQuizzes, saveQuizToJson } from "./quizUtils";
-import { type Quiz , type Question } from "@/lib/definitions";
+import { type Quiz , type Question, QuizListItem } from "@/lib/definitions";
 import {useTheme} from "next-themes";
-// Define the expected quiz type for QuizList component
-
+import { useSession } from "next-auth/react";
+import { Loader2 } from "lucide-react";
 
 export default function QuizPage() {
+  const { data: session, status } = useSession();
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -31,8 +33,14 @@ export default function QuizPage() {
   const [filterCategory, setFilterCategory] = useState("All");
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
-
-  // Load quizzes on mount
+  const router = useRouter();
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+ 
   useEffect(() => {
     const loadQuizzes = async () => {
       try {
@@ -90,14 +98,23 @@ export default function QuizPage() {
     }));
   }, []);
 
-
+  if(!session) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-lg">Loading...</p>
+        </div>
+        </div>
+    );
+  }
   if (isLoading) {
     return <QuizLayout loading theme={theme} setTheme={setTheme} />;
   }
-
+  
   if (selectedQuizId) {
     const selectedQuiz = quizzes.find(q => q.id === selectedQuizId);
-    if (!selectedQuiz) return <QuizLayout>Quiz not found</QuizLayout>;
+    if (!selectedQuiz) return <QuizLayout theme={theme} setTheme={setTheme} >Quiz not found</QuizLayout>;
 
     if (quizCompleted) {
       return (

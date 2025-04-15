@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useMemo, useCallback } from "react"
+import { useState, useMemo, useCallback, useEffect } from "react"
 import { useTheme } from "next-themes"
 import { useToast } from "@/hooks/use-toast"
 import cheatsheetData from "./cheatsheet.json" 
@@ -12,8 +12,14 @@ import ThemeToggle from "@/components/ui/ThemeToggle";
 import PdfExportButton from "./PdfExportButton"
 import NoResultsMessage from "./NoResultsMessage"
 import {CopyState, Section, Tab, TabData} from "@/lib/definitions";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react"
+
 
 export default function CheatsheetPage() {
+  // Session should be fetched using useSession hook for client components
+  const { data: session, status } = useSession();
   const { theme, setTheme } = useTheme()
   const [searchTerm, setSearchTerm] = useState("")
   const [isPdfExporting, setIsPdfExporting] = useState(false)
@@ -23,6 +29,12 @@ export default function CheatsheetPage() {
     timestamp: 0
   })
   
+  const router = useRouter();
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
   // Use a proper debounce hook
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
@@ -179,6 +191,18 @@ export default function CheatsheetPage() {
       }
     });
   }, [toast]);
+  
+  if (!session) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-lg">Loading...</p>
+        </div>
+        </div>
+    );
+  }
+  
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
