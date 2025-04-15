@@ -17,7 +17,7 @@ export default function Home() {
       <div className="flex items-center justify-center min-h-screen">
         <button
           onClick={() => signIn()}
-          className="px-6 py-3 font-semibold bg-primary text-primary-foreground rounded-md"
+          className="btn-brave text-white font-semibold px-6 py-3"
         >
           Sign in
         </button>
@@ -27,10 +27,12 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground">
-      <div className="w-full max-w-md p-8 space-y-6 rounded-lg bg-card shadow-lg">
-        <h1 className="text-2xl font-bold text-center text-card-foreground">Quiz Platform</h1>
+      <div className="brave-card w-full max-w-md p-8 space-y-6">
+        <h1 className="text-2xl font-bold text-center text-card-foreground">
+          Ashy
+        </h1>
 
-        <div className="flex items-center justify-center p-4 rounded-md bg-muted">
+        <div className="flex items-center justify-center p-4 rounded-lg bg-muted">
           <div className="flex flex-col items-center gap-2">
             {session.user?.image && (
               <img 
@@ -45,15 +47,27 @@ export default function Home() {
             <p className="text-sm text-muted-foreground">{session.user?.email}</p>
           </div>
         </div>
-
+        <div className="flex gap-4">
+          <a href="/learn" className="btn-brave flex items-center justify-center gap-2 w-full py-3 font-medium text-white" aria-label="Learn">
+            Learn
+          </a>
+          <a href="/quiz" className="btn-brave-secondary flex items-center justify-center gap-2 w-full py-3 font-medium" aria-label="Quiz">
+            Quiz
+          </a>
+        </div>    
         <button
           onClick={() => signOut()}
-          className="w-full py-3 font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors"
+          className="btn-brave w-full py-3 font-medium text-white"
+          aria-label="Sign out"
         >
           Sign out
         </button>
-
-        <p className="text-center text-muted-foreground text-sm mt-4">Happy Quizzing!</p>
+        <p className="text-center text-muted-foreground text-sm mt-4">
+            Powered by Next.js, TailwindCSS, NextAuth.js, Prisma, PlanetScale, Vercel
+        </p>
+        <p className="text-center text-muted-foreground text-sm">
+            Shishir Kumar &copy; All right reserved. {new Date().getFullYear()} 
+        </p>
       </div>
     </div>
   );

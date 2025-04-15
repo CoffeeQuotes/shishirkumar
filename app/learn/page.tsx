@@ -8,19 +8,19 @@ import { exportCheatsheetToPdf } from "@/lib/pdf-exporter"
 import { useDebounce } from "@/hooks/use-debounce"
 import CheatsheetTabs from "@/app/learn/CheatsheetTabs";
 import SearchBar from "@/app/learn/SearchBar";
-import ThemeToggle from "@/components/ui/ThemeToggle";
 import PdfExportButton from "./PdfExportButton"
 import NoResultsMessage from "./NoResultsMessage"
 import {CopyState, Section, Tab, TabData} from "@/lib/definitions";
-import { useSession } from "next-auth/react";
+import { useSession} from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react"
+import Header from "@/components/ui/Header";
 
 
 export default function CheatsheetPage() {
   // Session should be fetched using useSession hook for client components
   const { data: session, status } = useSession();
-  const { theme, setTheme } = useTheme()
+  
   const [searchTerm, setSearchTerm] = useState("")
   const [isPdfExporting, setIsPdfExporting] = useState(false)
   const { toast } = useToast()
@@ -206,28 +206,22 @@ export default function CheatsheetPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
-          <h1 className="text-2xl font-bold">Tech Cheatsheet</h1>
-          <div className="flex items-center gap-4">
-            <SearchBar 
-              searchTerm={searchTerm} 
-              setSearchTerm={setSearchTerm} 
-            />
-            <ThemeToggle theme={theme || "light"} setTheme={setTheme} />
-            <PdfExportButton 
-              onExport={handleExportPDF} 
-              isExporting={isPdfExporting} 
-            />
-          </div>
-        </div>
-      </header>
-
+      <Header />
       {/* Main Content */}
       <main className="container py-6"> 
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">Laravel, PHP, MySQL & JS Cheatsheet</h1>
           <p className="text-muted-foreground">Comprehensive revision guide created by Shishir Kumar</p>
+          <div className="flex flex-col md:flex-row flex-start md:justify-end">  
+            <SearchBar 
+                searchTerm={searchTerm} 
+                setSearchTerm={setSearchTerm} 
+              />
+            <PdfExportButton 
+              onExport={handleExportPDF} 
+              isExporting={isPdfExporting} 
+            />  
+          </div>
         </div>
 
         {filteredData.length > 0 ? (

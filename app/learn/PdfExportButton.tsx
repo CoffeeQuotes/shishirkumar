@@ -11,7 +11,7 @@ function PdfExportButton({ onExport, isExporting }: { onExport: () => void; isEx
                     <Button
                         onClick={onExport}
                         disabled={isExporting}
-                        className="relative"
+                        className="relative btn-brave font-medium text-white"
                     >
                         {isExporting ? (
                             <div className="flex items-center">

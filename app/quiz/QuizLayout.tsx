@@ -1,5 +1,6 @@
 import React from "react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import Header from "@/components/ui/Header";
 const QuizLayout: React.FC<{
     children?: React.ReactNode;
     loading?: boolean;
@@ -9,14 +10,7 @@ const QuizLayout: React.FC<{
     if (loading) {
         return (
             <div className="min-h-screen bg-background text-foreground">
-                <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur">
-                    <div className="container flex h-16 items-center justify-between">
-                        <h1 className="text-2xl font-semibold">Quiz Platform</h1>
-                        <div className="flex items-center gap-4">
-                            <ThemeToggle theme={theme || "light"} setTheme={(value) => setTheme(value)} />
-                        </div>
-                    </div>
-                </header>
+                <Header />
                 <main className="container py-6 md:py-10">
                     <div className="flex items-center justify-center min-h-[60vh]">
                         <div className="text-center">
@@ -36,14 +30,7 @@ const QuizLayout: React.FC<{
 
     return (
         <div className="min-h-screen bg-background text-foreground">
-            <header className="sticky top-0 z-40 w-full border-b bg-background/80 backdrop-blur">
-                <div className="container flex h-16 items-center justify-between">
-                    <h1 className="text-2xl font-semibold">Quiz Platform</h1>
-                    <div className="flex items-center gap-4">
-                        <ThemeToggle theme={theme || "light"} setTheme={(value) => setTheme(value)} />
-                    </div>
-                </div>
-            </header>
+            <Header />
             <main className="container py-6 md:py-10">
                 {children}
             </main>

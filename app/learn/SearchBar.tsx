@@ -1,6 +1,6 @@
-import {Search} from "lucide-react";
-import {Input} from "@/components/ui/input";
-import {Button} from "@/components/ui/button";
+import { Eraser, Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 function SearchBar({ searchTerm, setSearchTerm }: { searchTerm: string, setSearchTerm: (value: string) => void }) {
     return (
@@ -8,7 +8,7 @@ function SearchBar({ searchTerm, setSearchTerm }: { searchTerm: string, setSearc
             <div className="relative w-full max-w-sm">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                    aria-label="Search all content"
+                    aria-label="Search all content, press enter to search"
                     type="search"
                     placeholder="Search all content..."
                     className="w-full pl-8"
@@ -16,7 +16,10 @@ function SearchBar({ searchTerm, setSearchTerm }: { searchTerm: string, setSearc
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
-            <Button onClick={() => setSearchTerm("")} className="ml-4">
+            <Button onClick={() => setSearchTerm("")} className="btn-brave font-medium text-white mx-4">
+                {/* clear search icon */}
+                {/* Clear Search */}
+                <Eraser />
                 Clear Search
             </Button>
         </>
