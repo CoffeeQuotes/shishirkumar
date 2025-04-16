@@ -14,6 +14,7 @@ type Quiz = {
   title: string;
   category: string;
   questions: Question[];
+  userId: string;
 };
 
 // Helper to get quizzes from the database (uses the imported prisma instance)
@@ -22,17 +23,22 @@ const getQuizzesFromDB = async (): Promise<Quiz[]> => {
     const quizzes = await prisma.quiz.findMany({ // Uses imported singleton
       include: {
         questions: true,
+        user: true,
       },
       orderBy: { // Optional: Good practice to order results
         createdAt: 'desc',
       }
     });
-
+    // console.log(quizzes);
     // Transform the data (keep as is)
     return quizzes.map(quiz => ({
       id: quiz.id,
       title: quiz.title,
       category: quiz.category,
+      user: {
+        name: quiz.user.name,
+        image: quiz.user.image, 
+      },
       questions: quiz.questions.map(question => ({
         id: question.id,
         text: question.text,
@@ -56,6 +62,7 @@ const addQuizToDB = async (quiz: Quiz): Promise<Quiz> => {
           id: quiz.id,
           title: quiz.title,
           category: quiz.category,
+          userId: quiz.userId,
           questions: {
             create: quiz.questions.map(question => ({
               id: question.id,
@@ -122,6 +129,9 @@ export async function POST(request: NextRequest) {
     if (!newQuizData.category || typeof newQuizData.category !== 'string' || newQuizData.category.trim() === '') {
       return NextResponse.json({ error: 'Quiz category is required' }, { status: 400 });
     }
+    if (!newQuizData.userId || typeof newQuizData.userId !== 'string') {
+      return NextResponse.json({ error: 'Missing or invalid userId' }, { status: 400 });
+    }
     if (!newQuizData.questions || !Array.isArray(newQuizData.questions) || newQuizData.questions.length === 0) {
       return NextResponse.json({ error: 'Quiz must have at least one question' }, { status: 400 });
     }
@@ -133,6 +143,7 @@ export async function POST(request: NextRequest) {
       id: newQuizData.id || Date.now().toString(36) + Math.random().toString(36).substring(2, 9), // Use Prisma defaults if possible
       title: newQuizData.title.trim(),
       category: newQuizData.category.trim(),
+      userId: newQuizData.userId as string,
       questions: newQuizData.questions.map((q: any, index: number) => ({
         id: q.id || `${finalQuiz.id}-q${index}`, // Ensure unique IDs, Prisma defaults are better
         text: q.text?.trim() || '',

@@ -16,6 +16,7 @@ interface QuizCardProps {
         title: string;
         category: string;
         questions: any[];
+        user: any[];
     };
     onStartQuiz: (id: string) => void;
 }
@@ -29,6 +30,8 @@ const QuizCard: React.FC<QuizCardProps> = ({ quiz, onStartQuiz }) => {
                     <span className={`${secondaryBadgeClasses}`}>{quiz.category}</span>
                     <span>·</span>
                     <span>{quiz.questions.length} questions</span>
+                    <span>·</span>
+                    <span>by <a href="/" className="font-bold hover:underline">{quiz.user.name}</a></span>
                 </div>
             </div>
             <div className={`${cardFooterClasses} mt-auto`}>

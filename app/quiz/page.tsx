@@ -162,7 +162,7 @@ export default function QuizPage() {
               onTitleChange={(title) => setNewQuiz(prev => ({ ...prev, title }))}
               onCategoryChange={(category) => setNewQuiz(prev => ({ ...prev, category }))}
               onSubmit={async () => {
-                const success = await saveQuizToJson(newQuiz, toast);
+                const success = await saveQuizToJson(newQuiz, toast, session?.user?.id);
                 if (success) {
                   setNewQuiz({ id: Date.now().toString(), title: "", category: categories[0], questions: [] });
                   setIsCreating(false);

@@ -160,7 +160,8 @@ exports.Prisma.QuizScalarFieldEnum = {
   title: 'title',
   category: 'category',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  userId: 'userId'
 };
 
 exports.Prisma.QuestionScalarFieldEnum = {

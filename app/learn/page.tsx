@@ -14,7 +14,7 @@ import { useSession} from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react"
 import Header from "@/components/ui/Header";
-
+import Footer from "@/components/ui/Footer";
 
 export default function CheatsheetPage() {
   // Session should be fetched using useSession hook for client components
@@ -237,17 +237,7 @@ export default function CheatsheetPage() {
         )}
       </main>
 
-      {/* Footer */}
-      <footer className="border-t py-6 md:py-0">
-        <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
-          <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-            Laravel, PHP, MySQL &amp; JavaScript Cheatsheet - All the important concepts for your interview preparation
-          </p>
-          <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-            <span className="font-bold text-foreground">Thank You! Best of Luck! 🚀</span>
-          </p>
-        </div>
-      </footer>
+     <Footer/>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import React from "react";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import Header from "@/components/ui/Header";
+import Footer from "@/components/ui/Footer";
 const QuizLayout: React.FC<{
     children?: React.ReactNode;
     loading?: boolean;
@@ -29,16 +30,12 @@ const QuizLayout: React.FC<{
     }
 
     return (
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="bg-background text-foreground">
             <Header />
-            <main className="container py-6 md:py-10">
+            <main className="min-h-screen container py-6 md:py-10">
                 {children}
             </main>
-            <footer className="border-t py-4 md:py-0">
-                <div className="container flex h-14 items-center justify-center">
-                    <p className="text-center text-sm text-muted-foreground">Happy Quizzing!</p>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 };
