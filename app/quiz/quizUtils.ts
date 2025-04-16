@@ -1,14 +1,29 @@
 import { toast } from "@/hooks/use-toast";
 import { type Quiz } from "@/lib/definitions";
 
-export async function fetchQuizzes(toast: any): Promise<Quiz[]> {
+export async function fetchQuizzes(
+  toast: any,
+  options?: {
+    page?: number;
+    limit?: number;
+    category?: string;
+  }
+): Promise<{ quizzes: Quiz[]; totalCount: number }> {
   try {
-    const response = await fetch('/api/quizzes');
+    // Build query parameters
+    const params = new URLSearchParams();
+    if (options?.page) params.append('page', options.page.toString());
+    if (options?.limit) params.append('limit', options.limit.toString());
+    if (options?.category && options.category !== 'All') params.append('category', options.category);
+    
+    const queryString = params.toString() ? `?${params.toString()}` : '';
+    const response = await fetch(`/api/quizzes${queryString}`);
+    
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     return await response.json();
   } catch (error: any) {
     toast({ title: "Error", description: error.message, variant: "destructive" });
-    return [];
+    return { quizzes: [], totalCount: 0 };
   }
 }
 

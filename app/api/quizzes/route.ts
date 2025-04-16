@@ -100,12 +100,76 @@ const addQuizToDB = async (quiz: Quiz): Promise<Quiz> => {
 
 // --- API Route Handlers --- (Keep GET and POST handlers as they are)
 // GET: Retrieve all quizzes
-export async function GET() {
+// export async function GET() {
+//   try {
+//     const quizzes = await getQuizzesFromDB();
+//     return NextResponse.json(quizzes);
+//   } catch (error: any) {
+//     console.error("[API GET Error]", error); // Log the actual error server-side
+//     return NextResponse.json({ error: error.message || 'Failed to fetch quizzes' }, { status: 500 });
+//   }
+// }
+
+// Updated api/quizzes/route.ts GET handler
+export async function GET(request: NextRequest) {
   try {
-    const quizzes = await getQuizzesFromDB();
-    return NextResponse.json(quizzes);
+    // Parse pagination parameters
+    const { searchParams } = new URL(request.url);
+    const page = Number(searchParams.get('page')) || 1;
+    const limit = Number(searchParams.get('limit')) || 6;
+    const category = searchParams.get('category') || undefined;
+    
+    // Compute pagination values
+    const skip = (page - 1) * limit;
+    
+    // Build the where clause for filtering
+    const where: any = {};
+    if (category) {
+      where.category = category;
+    }
+    
+    // Count total quizzes (for pagination)
+    const totalCount = await prisma.quiz.count({
+      where
+    });
+    
+    // Fetch paginated quizzes
+    const quizzes = await prisma.quiz.findMany({
+      where,
+      include: {
+        questions: true,
+        user: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      skip,
+      take: limit,
+    });
+    
+    // Transform data
+    const formattedQuizzes = quizzes.map(quiz => ({
+      id: quiz.id,
+      title: quiz.title,
+      category: quiz.category,
+      user: {
+        name: quiz.user.name,
+        image: quiz.user.image, 
+      },
+      questions: quiz.questions.map(question => ({
+        id: question.id,
+        text: question.text,
+        options: question.options as string[],
+        correctAnswer: question.correctAnswer,
+      })),
+    }));
+    
+    return NextResponse.json({
+      quizzes: formattedQuizzes,
+      totalCount
+    });
   } catch (error: any) {
-    console.error("[API GET Error]", error); // Log the actual error server-side
+    console.error("[API GET Error]", error);
     return NextResponse.json({ error: error.message || 'Failed to fetch quizzes' }, { status: 500 });
   }
 }

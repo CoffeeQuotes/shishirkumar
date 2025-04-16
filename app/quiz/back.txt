@@ -1,0 +1,505 @@
+This is the quiz/page.tsx, I want pagination functionality for the quizzes. 
+"use client";
+import React, { useState, useEffect, useCallback } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { categories } from "./QuizConstants";
+import { useRouter } from "next/navigation";
+import QuizLayout from "./QuizLayout";
+import QuizList from "./QuizList";
+import CreateQuizForm from "./CreateQuizForm";
+import QuizQuestion from "./QuizQuestion";
+import QuizResults from "./QuizResults";
+import { fetchQuizzes, saveQuizToJson } from "./quizUtils";
+import { type Quiz , type Question, QuizListItem } from "@/lib/definitions";
+import {useTheme} from "next-themes";
+import { useSession } from "next-auth/react";
+import { Loader2 } from "lucide-react";
+
+export default function QuizPage() {
+  const { data: session, status } = useSession();
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [isCreating, setIsCreating] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [newQuiz, setNewQuiz] = useState<Quiz>({
+    id: Date.now().toString(), // Adding a default id
+    title: "",
+    category: categories[0],
+    questions: [],
+  });
+  const [selectedQuizId, setSelectedQuizId] = useState<string | null>(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
+  const [quizCompleted, setQuizCompleted] = useState(false);
+  const [score, setScore] = useState(0);
+  const [filterCategory, setFilterCategory] = useState("All");
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+  const router = useRouter();
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
+ 
+  useEffect(() => {
+    const loadQuizzes = async () => {
+      try {
+        const data = await fetchQuizzes(toast);
+        setQuizzes(data.filter(quiz => quiz.id !== undefined) as Quiz[]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadQuizzes();
+  }, [toast]);
+
+  useEffect(() => {
+    const handleAddQuestion = (event: Event) => {
+      const customEvent = event as CustomEvent<Question>;
+      if (customEvent.detail) {
+        setNewQuiz(prev => ({
+          ...prev,
+          questions: [
+            ...(prev.questions || []),
+            {
+              ...customEvent.detail,
+              id: customEvent.detail.id || Date.now().toString()
+            }
+          ]
+        }));
+      }
+    };
+
+    document.addEventListener('addquestion', handleAddQuestion);
+    return () => document.removeEventListener('addquestion', handleAddQuestion);
+  }, []);
+
+
+  // Quiz taking logic
+  const startQuiz = useCallback((quizId: string) => {
+    setSelectedQuizId(quizId);
+    setCurrentQuestionIndex(0);
+    setUserAnswers({});
+    setQuizCompleted(false);
+    setScore(0);
+  }, []);
+
+  const resetQuiz = useCallback(() => {
+    setSelectedQuizId(null);
+    setCurrentQuestionIndex(0);
+    setUserAnswers({});
+    setQuizCompleted(false);
+  }, []);
+
+  const handleAnswerSelect = useCallback((questionId: string, answer: string) => {
+    setUserAnswers(prev => ({
+      ...prev,
+      [questionId]: answer
+    }));
+  }, []);
+
+  if(!session) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-lg">Loading...</p>
+        </div>
+        </div>
+    );
+  }
+  if (isLoading) {
+    return <QuizLayout loading theme={theme} setTheme={setTheme} />;
+  }
+  
+  if (selectedQuizId) {
+    const selectedQuiz = quizzes.find(q => q.id === selectedQuizId);
+    if (!selectedQuiz) return <QuizLayout theme={theme} setTheme={setTheme} >Quiz not found</QuizLayout>;
+
+    if (quizCompleted) {
+      return (
+          <QuizLayout theme={theme} setTheme={setTheme}>
+            <QuizResults
+                quiz={selectedQuiz}
+                userAnswers={userAnswers}
+                score={score}
+                onReset={resetQuiz}
+            />
+          </QuizLayout>
+      );
+    }
+
+    return (
+      <QuizLayout theme={theme} setTheme={setTheme}>
+        <QuizQuestion
+          quiz={selectedQuiz}
+          currentQuestionIndex={currentQuestionIndex}
+          userAnswers={userAnswers}
+          onAnswerSelect={handleAnswerSelect}  // Updated this line
+          onNextQuestion={() => {
+
+                  if (currentQuestionIndex < selectedQuiz.questions.length - 1) {
+                    setCurrentQuestionIndex(prev => prev + 1);
+                  } else {
+                    const correctAnswers = selectedQuiz.questions.filter(
+                        q => userAnswers[q.id] === q.correctAnswer
+                    ).length;
+                    setScore(correctAnswers);
+                    setQuizCompleted(true);
+                  }
+                }}
+                onQuit={resetQuiz}
+          />
+      </QuizLayout>
+    );
+  }
+
+  if (isCreating) {
+    return (
+        <QuizLayout theme={theme} setTheme={setTheme}>
+          <CreateQuizForm
+              newQuiz={newQuiz}
+              onTitleChange={(title) => setNewQuiz(prev => ({ ...prev, title }))}
+              onCategoryChange={(category) => setNewQuiz(prev => ({ ...prev, category }))}
+              onSubmit={async () => {
+                const success = await saveQuizToJson(newQuiz, toast, session?.user?.id);
+                if (success) {
+                  setNewQuiz({ id: Date.now().toString(), title: "", category: categories[0], questions: [] });
+                  setIsCreating(false);
+                  const data = await fetchQuizzes(toast);
+                  setQuizzes(data.filter(quiz => quiz.id !== undefined) as Quiz[]);
+                }
+              }}
+              onCancel={() => setIsCreating(false)}
+          />
+        </QuizLayout>
+    );
+  }
+
+  return (
+      <QuizLayout theme={theme} setTheme={setTheme}>
+        <QuizList
+                quizzes={quizzes.filter(quiz => quiz.id !== undefined) as QuizListItem[]}
+                filterCategory={filterCategory}
+                onFilterChange={setFilterCategory}
+                onCreateNew={() => setIsCreating(true)}
+                onStartQuiz={startQuiz}
+            />
+      </QuizLayout>
+  );
+}
+
+quiz/QuizList.tsx 
+import React from "react";
+import { PlusCircle, Info } from "lucide-react";
+import QuizCard from "./QuizCard";
+import EmptyState from "./EmptyState";
+import {
+    cardClasses,
+    cardHeaderClasses,
+    cardTitleClasses,
+    cardContentClasses,
+    primaryButtonClasses,
+    selectClasses,
+    labelClasses
+} from "./QuizConstants";
+
+interface QuizListProps {
+    quizzes: Array<{
+        id: string;
+        title: string;
+        category: string;
+        questions: any[];
+    }>;
+    filterCategory: string;
+    onFilterChange: (category: string) => void;
+    onCreateNew: () => void;
+    onStartQuiz: (id: string) => void;
+}
+
+const QuizList: React.FC<QuizListProps> = ({
+                                               quizzes,
+                                               filterCategory,
+                                               onFilterChange,
+                                               onCreateNew,
+                                               onStartQuiz,
+                                           }) => {
+    const filteredQuizzes = filterCategory === "All"
+        ? quizzes
+        : quizzes.filter(quiz => quiz.category === filterCategory);
+
+    return (
+        <>
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <label htmlFor="filterCategory" className={`${labelClasses} mb-0 whitespace-nowrap`}>
+                        Filter:
+                    </label>
+                    <div className="relative w-full sm:w-[200px]">
+                        <select
+                            id="filterCategory"
+                            value={filterCategory}
+                            onChange={(e) => onFilterChange(e.target.value)}
+                            className={selectClasses}
+                        >
+                            <option value="All">All Categories</option>
+                            {quizzes
+                              .map(quiz => quiz.category)
+                              .filter((category, index, self) => self.indexOf(category) === index)
+                              .map((category: string) => (
+                                <option key={category} value={category}>
+                                    {category}
+                                </option>
+                              ))}
+                        </select>
+                    </div>
+                </div>
+                <button
+                    type="button"
+                    onClick={onCreateNew}
+                    className={`${primaryButtonClasses} px-4 py-2 w-full sm:w-auto`}
+                >
+                    <PlusCircle className="mr-2 h-4 w-4" /> Create New Quiz
+                </button>
+            </div>
+            <hr className="border-border mb-6" />
+            {filteredQuizzes.length === 0 ? (
+                <EmptyState
+                    hasQuizzes={quizzes.length > 0}
+                    filterCategory={filterCategory}
+                    onCreateNew={onCreateNew}
+                />
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredQuizzes.map((quiz) => (
+                        <QuizCard
+                            key={quiz.id}
+                            quiz={quiz}
+                            onStartQuiz={onStartQuiz}
+                        />
+                    ))}
+                </div>
+            )}
+        </>
+    );
+};
+
+export default QuizList;
+
+quiz/quizUtils.ts
+import { toast } from "@/hooks/use-toast";
+import { type Quiz } from "@/lib/definitions";
+
+export async function fetchQuizzes(toast: any): Promise<Quiz[]> {
+  try {
+    const response = await fetch('/api/quizzes');
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return await response.json();
+  } catch (error: any) {
+    toast({ title: "Error", description: error.message, variant: "destructive" });
+    return [];
+  }
+}
+
+export async function saveQuizToJson(quiz: Quiz, toast: any, userId?: string): Promise<boolean> {
+  try {
+    const finalQuiz = {
+      ...quiz,
+      userId, // Dynamically attach userId here
+      id: quiz.id || Date.now().toString(), // Ensure there's always an id
+    };
+
+    const response = await fetch('/api/quizzes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(finalQuiz),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Failed to save quiz');
+    }
+
+    return true;
+  } catch (error: any) {
+    toast({
+      title: 'Error',
+      description: error.message,
+      variant: 'destructive',
+    });
+    return false;
+  }
+}
+
+api/quizzes/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import {prisma} from '@/lib/prisma';
+// Define the quiz types (keep as is or move)
+type Question = {
+  id: string;
+  text: string;
+  options: string[];
+  correctAnswer: string;
+  quizId?: string;
+};
+
+type Quiz = {
+  id: string;
+  title: string;
+  category: string;
+  questions: Question[];
+  userId: string;
+};
+
+// Helper to get quizzes from the database (uses the imported prisma instance)
+const getQuizzesFromDB = async (): Promise<Quiz[]> => {
+  try {
+    const quizzes = await prisma.quiz.findMany({ // Uses imported singleton
+      include: {
+        questions: true,
+        user: true,
+      },
+      orderBy: { // Optional: Good practice to order results
+        createdAt: 'desc',
+      }
+    });
+    // console.log(quizzes);
+    // Transform the data (keep as is)
+    return quizzes.map(quiz => ({
+      id: quiz.id,
+      title: quiz.title,
+      category: quiz.category,
+      user: {
+        name: quiz.user.name,
+        image: quiz.user.image, 
+      },
+      questions: quiz.questions.map(question => ({
+        id: question.id,
+        text: question.text,
+        options: question.options as string[],
+        correctAnswer: question.correctAnswer,
+      })),
+    }));
+  } catch (error) {
+    console.error("Failed to read quizzes from database:", error);
+    throw new Error("Could not retrieve quiz data from database.");
+  }
+};
+
+// Helper to add a new quiz to the database (uses the imported prisma instance)
+const addQuizToDB = async (quiz: Quiz): Promise<Quiz> => {
+  try {
+    // Uses imported singleton
+    const result = await prisma.$transaction(async (tx) => {
+      const createdQuiz = await tx.quiz.create({
+        data: {
+          id: quiz.id,
+          title: quiz.title,
+          category: quiz.category,
+          userId: quiz.userId,
+          questions: {
+            create: quiz.questions.map(question => ({
+              id: question.id,
+              text: question.text,
+              options: question.options,
+              correctAnswer: question.correctAnswer,
+            })),
+          },
+        },
+        include: {
+          questions: true,
+        },
+      });
+
+
+      return {
+        id: createdQuiz.id,
+        title: createdQuiz.title,
+        category: createdQuiz.category,
+        questions: createdQuiz.questions.map(question => ({
+          id: question.id,
+          text: question.text,
+          options: question.options as string[],
+          correctAnswer: question.correctAnswer,
+        })),
+      };
+    });
+
+    return result;
+  } catch (error) {
+    console.error("Failed to add quiz to database:", error);
+    throw new Error("Could not save quiz data to database.");
+  }
+};
+
+// --- API Route Handlers --- (Keep GET and POST handlers as they are)
+// GET: Retrieve all quizzes
+export async function GET() {
+  try {
+    const quizzes = await getQuizzesFromDB();
+    return NextResponse.json(quizzes);
+  } catch (error: any) {
+    console.error("[API GET Error]", error); // Log the actual error server-side
+    return NextResponse.json({ error: error.message || 'Failed to fetch quizzes' }, { status: 500 });
+  }
+}
+
+// POST: Add a new quiz
+export async function POST(request: NextRequest) {
+  try {
+    let newQuizData: Partial<Quiz>;
+
+    try {
+      newQuizData = await request.json();
+    } catch (error) {
+      console.error("JSON parse error:", error);
+      return NextResponse.json({ error: 'Invalid JSON data in request body' }, { status: 400 });
+    }
+
+    // Validation (keep as is or enhance)
+    if (!newQuizData.title || typeof newQuizData.title !== 'string' || newQuizData.title.trim() === '') {
+      return NextResponse.json({ error: 'Quiz title is required' }, { status: 400 });
+    }
+    if (!newQuizData.category || typeof newQuizData.category !== 'string' || newQuizData.category.trim() === '') {
+      return NextResponse.json({ error: 'Quiz category is required' }, { status: 400 });
+    }
+    if (!newQuizData.userId || typeof newQuizData.userId !== 'string') {
+      return NextResponse.json({ error: 'Missing or invalid userId' }, { status: 400 });
+    }
+    if (!newQuizData.questions || !Array.isArray(newQuizData.questions) || newQuizData.questions.length === 0) {
+      return NextResponse.json({ error: 'Quiz must have at least one question' }, { status: 400 });
+    }
+    // Add more validation for question structure/content if necessary
+
+
+    // Prepare final quiz object (Consider using CUID/UUID from Prisma schema defaults)
+    const finalQuiz: Quiz = {
+      id: newQuizData.id || Date.now().toString(36) + Math.random().toString(36).substring(2, 9), // Use Prisma defaults if possible
+      title: newQuizData.title.trim(),
+      category: newQuizData.category.trim(),
+      userId: newQuizData.userId as string,
+      questions: newQuizData.questions.map((q: any, index: number) => ({
+        id: q.id || `${finalQuiz.id}-q${index}`, // Ensure unique IDs, Prisma defaults are better
+        text: q.text?.trim() || '',
+        options: Array.isArray(q.options) ? q.options.map((opt: any) => String(opt).trim()).filter(opt => opt) : [], // Ensure non-empty strings
+        correctAnswer: q.correctAnswer?.trim() || '',
+      })),
+    };
+
+    // Add validation here to ensure correctAnswer is one of the options, etc.
+
+    const createdQuiz = await addQuizToDB(finalQuiz);
+
+    return NextResponse.json(createdQuiz, { status: 201 });
+
+  } catch (error: any) {
+    console.error("[API POST Error] Failed to create quiz:");
+    console.error("  Message:", error.message);
+    if (error.code) console.error("  Prisma Error Code:", error.code);
+    console.error("  Stack:", error.stack);
+    return NextResponse.json({ error: error.message || 'Failed to create quiz' }, { status: 500 });
+  }
+}
+
+Please let me know if you need to see another file/Component.

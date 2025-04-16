@@ -32,8 +32,15 @@ export default function QuizPage() {
   const [score, setScore] = useState(0);
   const [filterCategory, setFilterCategory] = useState("All");
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Pagination state
+  const [totalQuizzes, setTotalQuizzes] = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(6);
+  
   const { toast } = useToast();
   const router = useRouter();
+  
   // Redirect to login if not authenticated
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -41,17 +48,25 @@ export default function QuizPage() {
     }
   }, [status, router]);
  
+  // Load quizzes with pagination
   useEffect(() => {
     const loadQuizzes = async () => {
+      setIsLoading(true);
       try {
-        const data = await fetchQuizzes(toast);
-        setQuizzes(data.filter(quiz => quiz.id !== undefined) as Quiz[]);
+        const data = await fetchQuizzes(toast, {
+          page: currentPage,
+          limit: itemsPerPage,
+          category: filterCategory !== "All" ? filterCategory : undefined
+        });
+        
+        setQuizzes(data.quizzes.filter(quiz => quiz.id !== undefined) as Quiz[]);
+        setTotalQuizzes(data.totalCount);
       } finally {
         setIsLoading(false);
       }
     };
     loadQuizzes();
-  }, [toast]);
+  }, [toast, currentPage, itemsPerPage, filterCategory]);
 
   useEffect(() => {
     const handleAddQuestion = (event: Event) => {
@@ -73,7 +88,6 @@ export default function QuizPage() {
     document.addEventListener('addquestion', handleAddQuestion);
     return () => document.removeEventListener('addquestion', handleAddQuestion);
   }, []);
-
 
   // Quiz taking logic
   const startQuiz = useCallback((quizId: string) => {
@@ -97,6 +111,16 @@ export default function QuizPage() {
       [questionId]: answer
     }));
   }, []);
+  
+  // Pagination handlers - defined only once
+  const handlePageChange = useCallback((pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  }, []);
+  
+  const handleItemsPerPageChange = useCallback((itemsCount: number) => {
+    setItemsPerPage(itemsCount);
+    setCurrentPage(1); // Reset to first page when changing items per page
+  }, []);
 
   if(!session) {
     return (
@@ -105,9 +129,10 @@ export default function QuizPage() {
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-lg">Loading...</p>
         </div>
-        </div>
+      </div>
     );
   }
+  
   if (isLoading) {
     return <QuizLayout loading theme={theme} setTheme={setTheme} />;
   }
@@ -118,14 +143,14 @@ export default function QuizPage() {
 
     if (quizCompleted) {
       return (
-          <QuizLayout theme={theme} setTheme={setTheme}>
-            <QuizResults
-                quiz={selectedQuiz}
-                userAnswers={userAnswers}
-                score={score}
-                onReset={resetQuiz}
-            />
-          </QuizLayout>
+        <QuizLayout theme={theme} setTheme={setTheme}>
+          <QuizResults
+            quiz={selectedQuiz}
+            userAnswers={userAnswers}
+            score={score}
+            onReset={resetQuiz}
+          />
+        </QuizLayout>
       );
     }
 
@@ -135,56 +160,75 @@ export default function QuizPage() {
           quiz={selectedQuiz}
           currentQuestionIndex={currentQuestionIndex}
           userAnswers={userAnswers}
-          onAnswerSelect={handleAnswerSelect}  // Updated this line
+          onAnswerSelect={handleAnswerSelect}
           onNextQuestion={() => {
-
-                  if (currentQuestionIndex < selectedQuiz.questions.length - 1) {
-                    setCurrentQuestionIndex(prev => prev + 1);
-                  } else {
-                    const correctAnswers = selectedQuiz.questions.filter(
-                        q => userAnswers[q.id] === q.correctAnswer
-                    ).length;
-                    setScore(correctAnswers);
-                    setQuizCompleted(true);
-                  }
-                }}
-                onQuit={resetQuiz}
-          />
+            if (currentQuestionIndex < selectedQuiz.questions.length - 1) {
+              setCurrentQuestionIndex(prev => prev + 1);
+            } else {
+              const correctAnswers = selectedQuiz.questions.filter(
+                q => userAnswers[q.id] === q.correctAnswer
+              ).length;
+              setScore(correctAnswers);
+              setQuizCompleted(true);
+            }
+          }}
+          onQuit={resetQuiz}
+        />
       </QuizLayout>
     );
   }
 
   if (isCreating) {
     return (
-        <QuizLayout theme={theme} setTheme={setTheme}>
-          <CreateQuizForm
-              newQuiz={newQuiz}
-              onTitleChange={(title) => setNewQuiz(prev => ({ ...prev, title }))}
-              onCategoryChange={(category) => setNewQuiz(prev => ({ ...prev, category }))}
-              onSubmit={async () => {
-                const success = await saveQuizToJson(newQuiz, toast, session?.user?.id);
-                if (success) {
-                  setNewQuiz({ id: Date.now().toString(), title: "", category: categories[0], questions: [] });
-                  setIsCreating(false);
-                  const data = await fetchQuizzes(toast);
-                  setQuizzes(data.filter(quiz => quiz.id !== undefined) as Quiz[]);
-                }
-              }}
-              onCancel={() => setIsCreating(false)}
-          />
-        </QuizLayout>
+      <QuizLayout theme={theme} setTheme={setTheme}>
+        <CreateQuizForm
+          newQuiz={newQuiz}
+          onTitleChange={(title) => setNewQuiz(prev => ({ ...prev, title }))}
+          onCategoryChange={(category) => setNewQuiz(prev => ({ ...prev, category }))}
+          onSubmit={async () => {
+            const success = await saveQuizToJson(newQuiz, toast, session?.user?.id);
+            if (success) {
+              setNewQuiz({ id: Date.now().toString(), title: "", category: categories[0], questions: [] });
+              setIsCreating(false);
+              
+              // Refresh the quizzes after creating a new one
+              const data = await fetchQuizzes(toast, {
+                page: 1, // Go back to first page
+                limit: itemsPerPage,
+                category: filterCategory !== "All" ? filterCategory : undefined
+              });
+              
+              setQuizzes(data.quizzes.filter(quiz => quiz.id !== undefined) as Quiz[]);
+              setTotalQuizzes(data.totalCount);
+              setCurrentPage(1); // Reset to first page to see the new quiz
+            }
+          }}
+          onCancel={() => setIsCreating(false)}
+        />
+      </QuizLayout>
     );
   }
 
   return (
-      <QuizLayout theme={theme} setTheme={setTheme}>
-        <QuizList
-                quizzes={quizzes.filter(quiz => quiz.id !== undefined) as QuizListItem[]}
-                filterCategory={filterCategory}
-                onFilterChange={setFilterCategory}
-                onCreateNew={() => setIsCreating(true)}
-                onStartQuiz={startQuiz}
-            />
-      </QuizLayout>
+    <QuizLayout theme={theme} setTheme={setTheme}>
+      <QuizList
+        quizzes={quizzes}
+        filterCategory={filterCategory}
+        onFilterChange={(category) => {
+          setFilterCategory(category);
+          setCurrentPage(1); // Reset to first page on filter change
+        }}
+        onCreateNew={() => setIsCreating(true)}
+        onStartQuiz={startQuiz}
+        pagination={{
+          currentPage,
+          totalPages: Math.ceil(totalQuizzes / itemsPerPage),
+          itemsPerPage,
+          onPageChange: handlePageChange,
+          onItemsPerPageChange: handleItemsPerPageChange,
+          totalItems: totalQuizzes
+        }}
+      />
+    </QuizLayout>
   );
 }
